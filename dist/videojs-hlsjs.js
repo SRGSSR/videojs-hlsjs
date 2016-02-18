@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.0.1 - 2016-02-18
+/*! videojs-hlsjs - v0.0.2 - 2016-02-18
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-hls - v0.0.0 - 2015-9-24
  * Copyright (c) 2015 benjipott
