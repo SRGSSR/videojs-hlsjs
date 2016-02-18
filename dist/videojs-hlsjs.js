@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.0.0 - 2016-02-10
+/*! videojs-hlsjs - v0.0.1 - 2016-02-18
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-hls - v0.0.0 - 2015-9-24
  * Copyright (c) 2015 benjipott
@@ -52,7 +52,7 @@
     },
 
     onError: function(event, data) {
-      if (data.type) {
+      if (data.fatal) {
         switch (data.type) {
           case Hls.ErrorTypes.NETWORK_ERROR:
             videojs.log.warn('HLSJS: Network error encountered: "' + data.details + '", trying to recover...');
@@ -63,18 +63,23 @@
             videojs.log.warn('HLSJS: Media error encountered: "' + data.details + '", trying to recover...');
             this.hls_.swapAudioCodec();
             this.hls_.recoverMediaError();
-
-            if (!this.paused()) {
-              this.play();
-            }
             break;
-
           default:
             videojs.log.error('HLSJS: Fatal error encountered: "' + data.details + '", aborting playback.');
             this.hls_.destroy();
             break;
         }
       }
+
+      if (data.details === Hls.ErrorDetails.BUFFER_APPENDING_ERROR) {
+        this.hls_.swapAudioCodec();
+        this.hls_.recoverMediaError();
+        if (this.paused()) {
+          this.pause();
+        }
+      }
+
+      videojs.log.warn('HLSJS: An error occurred: "' + data.details + '"');
     },
 
     dispose: function() {
