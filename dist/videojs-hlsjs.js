@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.0.3 - 2016-02-22
+/*! videojs-hlsjs - v0.0.4 - 2016-02-22
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-hls - v0.0.0 - 2015-9-24
  * Copyright (c) 2015 benjipott
@@ -27,11 +27,15 @@
       this.hls_.attachMedia(this.el_);
 
       this.el_.tech = this;
+      this.wasPaused_ = false;
       return this.el_;
     },
 
     onMediaAttached: function() {
       this.triggerReady();
+      if (this.wasPaused_) {
+        this.pause();
+      }
     },
 
     onLevelSwitched: function(evt, data) {
@@ -49,7 +53,7 @@
         this.options_.onManifestParsed(this.hls_);
       }
 
-      if (this.autoplay() && this.paused()) {
+      if (this.autoplay() && this.paused() && !this.wasPaused_) {
         this.play();
       }
     },
@@ -78,12 +82,12 @@
         }
       }
 
+      this.trigger('waiting');
+
       if (data.details === Hls.ErrorDetails.BUFFER_APPENDING_ERROR) {
+        this.wasPaused_ = this.paused();
         this.hls_.swapAudioCodec();
         this.hls_.recoverMediaError();
-        if (this.paused()) {
-          this.pause();
-        }
       }
 
       videojs.log.warn('HLSJS: An error occurred: "' + data.details + '"');
