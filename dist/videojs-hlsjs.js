@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.0.2 - 2016-02-18
+/*! videojs-hlsjs - v0.0.3 - 2016-02-22
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-hls - v0.0.0 - 2015-9-24
  * Copyright (c) 2015 benjipott
@@ -22,6 +22,7 @@
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed));
       this.hls_.on(Hls.Events.LEVEL_LOADED, videojs.bind(this, this.onLevelLoaded));
+      this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitched));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError));
       this.hls_.attachMedia(this.el_);
 
@@ -33,12 +34,18 @@
       this.triggerReady();
     },
 
+    onLevelSwitched: function(evt, data) {
+      if ('onLevelSwitched' in this.options_ && typeof this.options_.onLevelSwitched === 'function') {
+        this.options_.onLevelSwitched(this.hls_, data);
+      }
+    },
+
     onLevelLoaded: function(event, data) {
       this.duration = data.details.live ? function () {return Infinity;} : Html5.prototype.duration;
     },
 
     onManifestParsed: function() {
-      if ('onManifestParsed' in this.options_ && typeof this.options_.onManifestParsed == 'function') {
+      if ('onManifestParsed' in this.options_ && typeof this.options_.onManifestParsed === 'function') {
         this.options_.onManifestParsed(this.hls_);
       }
 
@@ -93,9 +100,9 @@
   };
 
   Hlsjs.canPlaySource = function(source) {
-    return !(videojs.options.hlsjs.favorNativeHLS && Html5.canPlaySource(source))
-      && (source.type && /^application\/(?:x-|vnd\.apple\.)mpegurl/i.test(source.type))
-      && Hls.isSupported();
+    return !(videojs.options.hlsjs.favorNativeHLS && Html5.canPlaySource(source)) &&
+      (source.type && /^application\/(?:x-|vnd\.apple\.)mpegurl/i.test(source.type)) &&
+      Hls.isSupported();
   };
 
   videojs.options.hlsjs = {
