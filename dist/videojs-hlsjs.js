@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.0.4 - 2016-02-22
+/*! videojs-hlsjs - v0.0.5 - 2016-02-23
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 /*! videojs-hls - v0.0.0 - 2015-9-24
  * Copyright (c) 2015 benjipott
@@ -15,19 +15,23 @@
       Html5 = videojs.getComponent('Html5');
 
   var Hlsjs = videojs.extend(Html5, {
-    createEl: function() {
+    _bindHls: function() {
       this.hls_ = new Hls(this.options_.hls);
-      this.el_ = Html5.prototype.createEl.apply(this, arguments);
-
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached));
+      this.hls_.on(Hls.Events.MANIFEST_LOADED, videojs.bind(this, this.onManifestLoaded));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed));
       this.hls_.on(Hls.Events.LEVEL_LOADED, videojs.bind(this, this.onLevelLoaded));
       this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitched));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError));
       this.hls_.attachMedia(this.el_);
+      this.wasPaused_ = undefined;
+    },
 
+    createEl: function() {
+      this.el_ = Html5.prototype.createEl.apply(this, arguments);
+
+      this._bindHls();
       this.el_.tech = this;
-      this.wasPaused_ = false;
       return this.el_;
     },
 
@@ -41,6 +45,12 @@
     onLevelSwitched: function(evt, data) {
       if ('onLevelSwitched' in this.options_ && typeof this.options_.onLevelSwitched === 'function') {
         this.options_.onLevelSwitched(this.hls_, data);
+      }
+    },
+
+    onManifestLoaded: function(evt, data) {
+      if ('onManifestLoaded' in this.options_ && typeof this.options_.onManifestLoaded === 'function') {
+        this.options_.onManifestLoaded(this.hls_, data);
       }
     },
 
@@ -59,6 +69,8 @@
     },
 
     setSrc: function(src) {
+      this.hls_.destroy();
+      this._bindHls();
       this.hls_.loadSource(src);
     },
 
