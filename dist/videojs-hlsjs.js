@@ -1,6 +1,4 @@
-/*! videojs-hlsjs - v0.0.6 - 2016-03-16
-* Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
-/*! videojs-hlsjs - v0.0.6 - 2016-03-16
+/*! videojs-hlsjs - v0.0.7 - 2016-04-06
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -11,7 +9,8 @@
   */
   var Component = videojs.getComponent('Component'),
       Tech = videojs.getTech('Tech'),
-      Html5 = videojs.getComponent('Html5');
+      Html5 = videojs.getComponent('Html5'),
+      techOrderIndex = videojs.options.techOrder.indexOf('html5');
 
   var Hlsjs = videojs.extend(Html5, {
     _bindHls: function() {
@@ -138,6 +137,10 @@
 
   Component.registerComponent('Hlsjs', Hlsjs);
   Tech.registerTech('Hlsjs', Hlsjs);
-  videojs.options.techOrder.push('Hlsjs');
+  if (techOrderIndex > -1) {
+    videojs.options.techOrder.splice(techOrderIndex, 0, 'Hlsjs');
+  } else {
+    videojs.options.techOrder.push('Hlsjs');
+  }
 
 })(window, videojs, Hls, document);
