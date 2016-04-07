@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.0.7 - 2016-04-06
+/*! videojs-hlsjs - v0.0.7 - 2016-04-07
 * Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -21,6 +21,7 @@
       this.hls_.on(Hls.Events.LEVEL_LOADED, videojs.bind(this, this.onLevelLoaded));
       this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitched));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError));
+      this.el_.addEventListener('error', videojs.bind(this, this.onMediaError));
       this.hls_.attachMedia(this.el_);
       this.wasPaused_ = undefined;
     },
@@ -70,6 +71,19 @@
       this.hls_.destroy();
       this._bindHls();
       this.hls_.loadSource(src);
+    },
+
+    onMediaError: function(event) {
+      var error = event.currentTarget.error;
+      if (error && error.code === error.MEDIA_ERR_DECODE) {
+        var data = {
+          type: Hls.ErrorTypes.MEDIA_ERROR,
+          fatal: true,
+          details: "mediaErrorDecode"
+        };
+
+        this.onError(event, data);
+      }
     },
 
     onError: function(event, data) {
