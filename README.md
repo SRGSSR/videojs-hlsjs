@@ -1,5 +1,7 @@
 # Videojs hls.js Plugin
 
+<img align="right" height="30" src="http://www.srgssr.ch/fileadmin/templates/images/SRGLogo.gif">
+
 > An HLS plugin for video.jas based on hls.js
 
 Videojs hls.js offers hls playback using [hls.js](https://github.com/dailymotion/hls.js). For more details on browser compatibility see th hls.js github page.
@@ -12,7 +14,7 @@ Videojs hls.js offers hls playback using [hls.js](https://github.com/dailymotion
     - [hlsjs.favorNativeHLS](#hlsjsfavorNativeHLS)
     - [hlsjs.hls](#hlsjshls)
     - [Callbacks](#hlsjsonHlsMediaAttaching)
-- [Release History](#release-history)
+- [Original Repository](#original-repository)
 
 ## Getting Started
 
@@ -254,3 +256,8 @@ Callback fired when a decrypt key loading starts.
 Type `function`
 
 Callback fired when a decrypt key loading is completed.
+
+## Original Repository
+
+This project was forked from: [videojs-hlsjs](https://github.com/benjipott/videojs-hlsjs), credits to the
+original author.
