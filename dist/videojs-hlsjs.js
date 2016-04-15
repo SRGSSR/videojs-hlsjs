@@ -1,5 +1,5 @@
-/*! videojs-hlsjs - v0.0.8 - 2016-04-07
-* Copyright (c) 2016 benjipott; Licensed Apache-2.0 */
+/*! videojs-hlsjs - v0.1.0 - 2016-04-15
+* Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
@@ -13,25 +13,56 @@
       techOrderIndex = videojs.options.techOrder.indexOf('html5');
 
   var Hlsjs = videojs.extend(Html5, {
-    _bindHls: function() {
-      this.hls_ = new Hls(this.options_.hls);
-      this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached));
-      this.hls_.on(Hls.Events.MANIFEST_LOADED, videojs.bind(this, this.onManifestLoaded));
-      this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed));
-      this.hls_.on(Hls.Events.LEVEL_LOADED, videojs.bind(this, this.onLevelLoaded));
-      this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitched));
-      this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError));
-      this.el_.addEventListener('error', videojs.bind(this, this.onMediaError));
-      this.hls_.attachMedia(this.el_);
-      this.wasPaused_ = undefined;
-    },
 
     createEl: function() {
       this.el_ = Html5.prototype.createEl.apply(this, arguments);
 
-      this._bindHls();
+      this._initHls();
       this.el_.tech = this;
       return this.el_;
+    },
+
+    _initHls: function() {
+      this.hls_ = new Hls(this.options_.hls);
+      this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached));
+      this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed));
+      this.hls_.on(Hls.Events.LEVEL_LOADED, videojs.bind(this, this.onLevelLoaded));
+      this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError));
+      this.el_.addEventListener('error', videojs.bind(this, this.onMediaError));
+      this._bindExternalCallbacks();
+      this.hls_.attachMedia(this.el_);
+      this.wasPaused_ = undefined;
+    },
+
+    _getOptionsCallbackForEvent: function(evt) {
+      var capitalize = function(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      }, callback = this.options_['on' + capitalize(evt)];
+
+      if (callback && typeof callback === 'function') {
+        return callback;
+      }
+    },
+
+    _bindEvtCallback: function(evt) {
+      var callback = this._getOptionsCallbackForEvent(evt);
+
+      if (callback) {
+        this.hls_.on(evt, videojs.bind(this, function(evt, data) {
+          var fn = this._getOptionsCallbackForEvent(evt);
+          fn(this.hls_, data);
+        }));
+      }
+    },
+
+    _bindExternalCallbacks: function() {
+      var key;
+
+      for(key in Hls.Events) {
+        if (Object.prototype.hasOwnProperty.call(Hls.Events, key)) {
+          this._bindEvtCallback(Hls.Events[key]);
+        }
+      }
     },
 
     onMediaAttached: function() {
@@ -41,27 +72,11 @@
       }
     },
 
-    onLevelSwitched: function(evt, data) {
-      if ('onLevelSwitched' in this.options_ && typeof this.options_.onLevelSwitched === 'function') {
-        this.options_.onLevelSwitched(this.hls_, data);
-      }
-    },
-
-    onManifestLoaded: function(evt, data) {
-      if ('onManifestLoaded' in this.options_ && typeof this.options_.onManifestLoaded === 'function') {
-        this.options_.onManifestLoaded(this.hls_, data);
-      }
-    },
-
     onLevelLoaded: function(event, data) {
       this.duration = data.details.live ? function () {return Infinity;} : Html5.prototype.duration;
     },
 
     onManifestParsed: function() {
-      if ('onManifestParsed' in this.options_ && typeof this.options_.onManifestParsed === 'function') {
-        this.options_.onManifestParsed(this.hls_);
-      }
-
       if (this.autoplay() && this.paused() && !this.wasPaused_) {
         this.play();
       }
@@ -69,7 +84,7 @@
 
     setSrc: function(src) {
       this.hls_.destroy();
-      this._bindHls();
+      this._initHls();
       this.hls_.loadSource(src);
     },
 
@@ -79,7 +94,7 @@
         var data = {
           type: Hls.ErrorTypes.MEDIA_ERROR,
           fatal: true,
-          details: "mediaErrorDecode"
+          details: 'mediaErrorDecode'
         };
 
         this.onError(event, data);
@@ -112,15 +127,13 @@
               this.hls_.destroy();
               break;
           }
-        }
-
-        this.trigger('waiting');
-
-        if (data.details === Hls.ErrorDetails.BUFFER_APPENDING_ERROR) {
+        } else if (data.details === Hls.ErrorDetails.BUFFER_APPENDING_ERROR) {
           this.wasPaused_ = this.paused();
           this.hls_.swapAudioCodec();
           this.hls_.recoverMediaError();
         }
+
+        this.trigger('waiting');
       }
     },
 
