@@ -11,10 +11,7 @@ Videojs hls.js offers hls playback using [hls.js](https://github.com/dailymotion
   - [Dependencies](#dependencies)
   - [CORS Considerations](#cors-considerations)
   - [Options](#options)
-    - [hlsjs.favorNativeHLS](#hlsjsfavorNativeHLS)
-    - [hlsjs.hls](#hlsjshls)
-    - [Callbacks](#hlsjsonHlsMediaAttaching)
-- [Original Repository](#original-repository)
+- [Original Author](#original-author)
 
 ## Getting Started
 
@@ -46,11 +43,14 @@ This project depends on:
 
 ### CORS Considerations
 
+All HLS resources must be delivered with
+[CORS headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) permitting GET requests.
+
 ### Options
 
 You may pass in an options object to the hls source handler at player initialization.
 This plugin offers the possibility to attach a callback to any hls.js event, see the documetation
-about th different events here: (Hls.js Runtime Events) [https://github.com/dailymotion/hls.js/blob/master/API.md#runtime-events].
+about th different events here: [Hls.js Runtime Events](https://github.com/dailymotion/hls.js/blob/master/API.md#runtime-events).
 You can pass in options just like you would for other parts of video.js:
 
 #### hlsjs.favorNativeHLS
@@ -257,7 +257,7 @@ Type `function`
 
 Callback fired when a decrypt key loading is completed.
 
-## Original Repository
+## Original Author
 
 This project was forked from: [videojs-hlsjs](https://github.com/benjipott/videojs-hlsjs), credits to the
 original author.
