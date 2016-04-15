@@ -1,6 +1,6 @@
 {
   "name": "videojs-hlsjs",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "author": "benjipott",
   "description": "A revolutionary plugin for video.js",
   "license": "Apache-2.0",
@@ -25,7 +25,7 @@
     "grunt-contrib-qunit": "^0.2",
     "grunt-contrib-uglify": "^0.2",
     "grunt-contrib-watch": "^0.4",
-    "hls.js": "git://github.com/dailymotion/hls.js.git#v0.6",
+    "hls.js": "git://github.com/dailymotion/hls.js.git#v0.5.20",
     "path": "^0.12.7",
     "qunitjs": "^1.12",
     "sinon": "1.10.2",
