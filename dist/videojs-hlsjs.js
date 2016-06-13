@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.0 - 2016-05-03
+/*! videojs-hlsjs - v0.1.1 - 2016-06-13
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -14,7 +14,6 @@
 
   var Hlsjs = videojs.extend(Html5, {
     _initHls: function() {
-      this.options_.hls.autoStartLoad = false;
       this.hls_ = new Hls(this.options_.hls);
       this._bindExternalCallbacks();
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached));
@@ -267,7 +266,10 @@
      * @type {boolean}
      * @default true
      */
-    favorNativeHLS: true
+    favorNativeHLS: true,
+    hls: {
+      autoStartLoad: false
+    }
   };
 
   Component.registerComponent('Hlsjs', Hlsjs);
