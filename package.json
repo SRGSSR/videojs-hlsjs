@@ -24,7 +24,7 @@
     "grunt-contrib-jshint": "^0.6",
     "grunt-contrib-uglify": "^0.2",
     "grunt-contrib-watch": "^0.4",
-    "hls.js": "git://github.com/dailymotion/hls.js.git#v0.5.20",
+    "hls.js": "git://github.com/dailymotion/hls.js.git#v0.5.36",
     "path": "^0.12.7",
     "sinon": "1.10.2",
     "video.js": "^5.9.0"
