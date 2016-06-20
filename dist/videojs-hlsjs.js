@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.2 - 2016-06-14
+/*! videojs-hlsjs - v0.1.2 - 2016-06-20
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -18,7 +18,6 @@
       this._bindExternalCallbacks();
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed));
-      this.hls_.on(Hls.Events.LEVEL_LOADED, videojs.bind(this, this.onLevelLoaded));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError));
       this.el_.addEventListener('error', videojs.bind(this, this.onMediaError));
 
@@ -88,25 +87,61 @@
       }
     },
 
-    duration: function() {
-      if (this.endPosition_) {
-        return this.endPosition_ - (this.startPosition_ ? this.startPosition_ : 0);
-      } else {
-        return Html5.prototype.duration.apply(this);
+    _currentFragmentTimeRange: function() {
+      if (this.hls_.currentLevel >= 0) {
+        var details = this.hls_.levels[this.hls_.currentLevel].details,
+            fragments = details.fragments, isLive = details.isLive,
+            firstFragment = fragments[((!isLive) ? 0 : 1)],
+            lastFragment = fragments[((!isLive) ? fragments.length-1 : fragments.length-3)];
+
+        this._lastRange =  {
+          start: firstFragment.start,
+          end: lastFragment.start + lastFragment.duration
+        };
       }
+
+      return (this._lastRange) ? this._lastRange : {start: 0, end: this._getNativeDuration()};
+    },
+
+    _getNativeDuration: function() {
+      var duration = Html5.prototype.duration.apply(this);
+
+      if (this.endPosition_) {
+        duration = this.endPosition_ - (this.startPosition_ ? this.startPosition_ : 0);
+      }
+
+      return duration;
+    },
+
+    duration: function() {
+      var timeRange = this._currentFragmentTimeRange();
+      return timeRange.end - timeRange.start;
     },
 
     setCurrentTime: function(seconds) {
+      var time = seconds;
       if (this.endPosition_ && this.endPosition_ <= seconds) {
-        Html5.prototype.setCurrentTime.call(this, this.endPosition_);
+        time = this.endPosition;
+      } else if (this.startPosition_ && this.startPosition_ >= seconds) {
+        time = this.startPosition;
       } else {
-        Html5.prototype.setCurrentTime.call(this, seconds + (this.startPosition_ ? this.startPosition_ : 0));
+        var timeRange = this._currentFragmentTimeRange();
+
+        time = timeRange.start + time;
+        time = (timeRange.end < time) ? timeRange.end : time;
+
+        time = time + (this.startPosition_ ? this.startPosition_ : 0);
       }
+
+      Html5.prototype.setCurrentTime.call(this, time);
     },
 
     currentTime: function() {
       var time = Html5.prototype.currentTime.apply(this),
-          seconds = time - (this.startPosition_? this.startPosition_ : 0);
+          timeRange = this._currentFragmentTimeRange(),
+          seconds = time - timeRange.start;
+
+      seconds = seconds - (this.startPosition_? this.startPosition_ : 0);
       if (this.endPosition_ > time) {
         this.endPositionReached_ = false;
       } else if (!this.endPositionReached_) {
@@ -114,6 +149,7 @@
         this.endPositionReached_ = true;
         this.trigger('ended');
       }
+
       return seconds < 0 ? 0 : seconds;
     },
 
@@ -121,10 +157,12 @@
       return this.endPositionReached_ || Html5.prototype.ended.call(this);
     },
 
-    onLevelLoaded: function(event, data) {
-      this.duration = data.details.live ?
-                          function () { return Infinity; } :
-                          this.duration;
+    seekable: function() {
+      return {
+        start: function() { return 0; },
+        end: function() { return this.duration(); }.bind(this),
+        length: 1
+      };
     },
 
     onManifestParsed: function() {
