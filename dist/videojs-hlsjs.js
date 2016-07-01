@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.3 - 2016-06-20
+/*! videojs-hlsjs - v0.1.4 - 2016-07-01
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -139,7 +139,8 @@
     currentTime: function() {
       var time = Html5.prototype.currentTime.apply(this),
           timeRange = this._currentFragmentTimeRange(),
-          seconds = time - timeRange.start;
+          // time is not in range we are dealing with and hls live stream
+          seconds = (time < timeRange.start) ? time : time - timeRange.start;
 
       seconds = seconds - (this.startPosition_? this.startPosition_ : 0);
       if (this.endPosition_ > time) {
