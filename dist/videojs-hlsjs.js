@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.4 - 2016-07-01
+/*! videojs-hlsjs - v0.1.4 - 2016-07-05
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -88,7 +88,7 @@
     },
 
     _currentFragmentTimeRange: function() {
-      if (this.hls_.currentLevel >= 0) {
+      if (this.hls_ && this.hls_.currentLevel >= 0) {
         var details = this.hls_.levels[this.hls_.currentLevel].details,
             fragments = details.fragments, isLive = details.isLive,
             firstFragment = fragments[((!isLive) ? 0 : 1)],
