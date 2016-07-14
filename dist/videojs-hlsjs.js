@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.5 - 2016-07-05
+/*! videojs-hlsjs - v0.1.5 - 2016-07-14
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -121,9 +121,7 @@
     setCurrentTime: function(seconds) {
       var time = seconds;
       if (this.endPosition_ && this.endPosition_ <= seconds) {
-        time = this.endPosition;
-      } else if (this.startPosition_ && this.startPosition_ >= seconds) {
-        time = this.startPosition;
+        time = this.endPosition_;
       } else {
         var timeRange = this._currentFragmentTimeRange();
 
