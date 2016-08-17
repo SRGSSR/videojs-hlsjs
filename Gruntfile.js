@@ -1,7 +1,5 @@
 'use strict';
 
-var basename = require('path').basename;
-
 module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
@@ -11,6 +9,15 @@ module.exports = function (grunt) {
     ' Licensed <%= pkg.license %> */\n',
     clean: {
       files: ['dist']
+    },
+    connect: {
+      main: {
+        options: {
+          port: 9000,
+          protocol: 'http',
+          hostname: '*'
+        }
+      }
     },
     concat: {
       options: {
@@ -52,15 +59,15 @@ module.exports = function (grunt) {
       },
       src: {
         files: '<%= jshint.src.src %>',
-        tasks: ['jshint:src', 'qunit']
+        tasks: ['jshint:src']
       }
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-qunit');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-contrib-watch');
 
@@ -69,4 +76,6 @@ module.exports = function (grunt) {
      'jshint',
      'concat',
      'uglify']);
+
+  grunt.registerTask('serve', ['jshint', 'connect', 'watch']);
 };

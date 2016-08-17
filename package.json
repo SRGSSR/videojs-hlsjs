@@ -1,6 +1,6 @@
 {
   "name": "videojs-hlsjs",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": "srgssr",
   "description": "A revolutionary plugin for video.js",
   "license": "Apache-2.0",
@@ -18,15 +18,14 @@
   ],
   "dependencies": {},
   "devDependencies": {
-    "grunt": "^0.4.5",
-    "grunt-contrib-clean": "^0.4",
-    "grunt-contrib-concat": "^0.3",
-    "grunt-contrib-jshint": "^0.6",
-    "grunt-contrib-uglify": "^0.2",
-    "grunt-contrib-watch": "^0.4",
+    "grunt": "1.0.1",
+    "grunt-contrib-clean": "1.0.0",
+    "grunt-contrib-concat": "1.0.1",
+    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-uglify": "1.0.1",
+    "grunt-contrib-connect": "1.0.2",
+    "grunt-contrib-watch": "1.0.0",
     "hls.js": "git://github.com/dailymotion/hls.js.git#v0.5.36",
-    "path": "^0.12.7",
-    "sinon": "1.10.2",
     "video.js": "^5.9.0"
   }
 }

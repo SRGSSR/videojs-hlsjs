@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.6 - 2016-07-14
+/*! videojs-hlsjs - v0.1.7 - 2016-08-17
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -141,12 +141,14 @@
           seconds = (time < timeRange.start) ? time : time - timeRange.start;
 
       seconds = seconds - (this.startPosition_? this.startPosition_ : 0);
-      if (this.endPosition_ > time) {
-        this.endPositionReached_ = false;
-      } else if (!this.endPositionReached_) {
-        this.pause();
-        this.endPositionReached_ = true;
-        this.trigger('ended');
+      if (this.endPosition_) {
+        if (this.endPosition_ > time) {
+          this.endPositionReached_ = false;
+        } else if (!this.endPositionReached_) {
+          this.pause();
+          this.endPositionReached_ = true;
+          this.trigger('ended');
+        }
       }
 
       return seconds < 0 ? 0 : seconds;
