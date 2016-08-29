@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.7 - 2016-08-17
+/*! videojs-hlsjs - v0.1.7 - 2016-08-29
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -159,15 +159,18 @@
     },
 
     seekable: function() {
-      return {
-        start: function() { return 0; },
-        end: function() { return this.duration(); }.bind(this),
-        length: 1
-      };
+      var timeRange = Html5.prototype.seekable.apply(this);
+      if (timeRange.length > 0) {
+        return {
+          start: function() { return 0; },
+          end: function() { return this.duration(); }.bind(this),
+          length: 1
+        };
+      }
     },
 
     onManifestParsed: function() {
-      this.hls_.startLoad(this.startPosition_ || 0);
+      this.hls_.startLoad(this.startPosition_);
       if (this.autoplay() && this.paused() && !this.wasPaused_) {
         this.play();
       }
