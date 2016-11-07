@@ -184,14 +184,14 @@
       if (this.options_.disableAutoLevel) {
         var level = this._levels[this._levels.length-1];
         this.setLevel(level);
-        this.hls.startLevel = level.index;
+        this.hls_.startLevel = level.index;
       }
     },
 
     onLevelSwitch: function() {
       if (this._currentLevel) {
-        if (this.hls.loadLevel !== this._currentLevel.index) {
-          this.hls.loadLevel = this._currentLevel.index;
+        if (this.hls_.loadLevel !== this._currentLevel.index) {
+          this.hls_.loadLevel = this._currentLevel.index;
         }
       }
     },
@@ -200,7 +200,7 @@
       this._levels = [];
       this._currentLevel = undefined;
 
-      if (this.hls.levels) {
+      if (this.hls_.levels) {
         var i;
 
         if (!this.options_.disableAutoLevel) {
@@ -211,8 +211,8 @@
           this._currentLevel = this._levels[0];
         }
 
-        for (i = 0; i < this.hls.levels.length; i++) {
-          var level = this.hls.levels[i];
+        for (i = 0; i < this.hls_.levels.length; i++) {
+          var level = this.hls_.levels[i];
           this._levels.push({
               label: level.height + 'p',
               index: i
@@ -335,7 +335,7 @@
 
     setLevel: function(level) {
       this._currentLevel = level;
-      this.hls.loadLevel = level.index;
+      this.hls_.loadLevel = level.index;
     },
 
     getLevels: function() {
