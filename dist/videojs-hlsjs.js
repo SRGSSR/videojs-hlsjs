@@ -203,20 +203,20 @@
       if (this.hls_.levels) {
         var i;
 
-        if (!this.options_.disableAutoLevel) {
-          this._levels.push({
-            label: 'auto',
-            index: -1
-          });
-          this._currentLevel = this._levels[0];
-        }
-
         for (i = 0; i < this.hls_.levels.length; i++) {
           var level = this.hls_.levels[i];
           this._levels.push({
               label: level.height + 'p',
               index: i
           });
+        }
+
+        if (!this.options_.disableAutoLevel) {
+          this._levels.push({
+            label: 'auto',
+            index: -1
+          });
+          this._currentLevel = this._levels[0];
         }
       }
     },
@@ -335,6 +335,7 @@
 
     setLevel: function(level) {
       this._currentLevel = level;
+      this.hls_.currentLevel = level.index;
       this.hls_.loadLevel = level.index;
     },
 
