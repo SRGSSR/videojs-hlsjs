@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.10 - 2016-10-31
+/*! videojs-hlsjs - v0.1.10 - 2016-11-07
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -18,6 +18,7 @@
       this._bindExternalCallbacks();
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed));
+      this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitch));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError));
       this.el_.addEventListener('error', videojs.bind(this, this.onMediaError));
 
@@ -177,6 +178,47 @@
       if (this.autoplay() && this.paused() && !this.wasPaused_) {
         this.play();
       }
+
+      this._parseLevels();
+
+      if (this.options_.disableAutoLevel) {
+        var level = this._levels[this._levels.length-1];
+        this.setLevel(level);
+        this.hls.startLevel = level.index;
+      }
+    },
+
+    onLevelSwitch: function() {
+      if (this._currentLevel) {
+        if (this.hls.loadLevel !== this._currentLevel.index) {
+          this.hls.loadLevel = this._currentLevel.index;
+        }
+      }
+    },
+
+    _parseLevels: function() {
+      this._levels = [];
+      this._currentLevel = undefined;
+
+      if (this.hls.levels) {
+        var i;
+
+        if (!this.options_.disableAutoLevel) {
+          this._levels.push({
+            label: 'auto',
+            index: -1
+          });
+          this._currentLevel = this._levels[0];
+        }
+
+        for (i = 0; i < this.hls.levels.length; i++) {
+          var level = this.hls.levels[i];
+          this._levels.push({
+              label: level.height + 'p',
+              index: i
+          });
+        }
+      }
     },
 
     _parseParams: function(paramsStr) {
@@ -285,6 +327,19 @@
 
         this.trigger('waiting');
       }
+    },
+
+    currentLevel: function() {
+      return this._currentLevel;
+    },
+
+    setLevel: function(level) {
+      this._currentLevel = level;
+      this.hls.loadLevel = level.index;
+    },
+
+    getLevels: function() {
+      return this._levels;
     },
 
     dispose: function() {
