@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.10 - 2016-11-09
+/*! videojs-hlsjs - v0.1.10 - 2016-11-10
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -122,6 +122,7 @@
 
     setCurrentTime: function(seconds) {
       var time = seconds;
+
       if (this.endPosition_ && this.endPosition_ <= seconds) {
         time = this.endPosition_;
       } else {
@@ -152,6 +153,11 @@
           this.trigger('ended');
         }
       }
+
+      if (this.hls_.currentLevel !== this._lastLevel) {
+        this.trigger('levelswitched');
+      }
+      this._lastLevel = this.hls_.currentLevel;
 
       return seconds < 0 ? 0 : seconds;
     },
@@ -191,16 +197,16 @@
     },
 
     onLevelSwitch: function() {
-      if (this._currentLevel) {
-        if (this.hls_.loadLevel !== this._currentLevel.index) {
-          this.hls_.loadLevel = this._currentLevel.index;
+      if (this._forceLevel) {
+        if (this.hls_.loadLevel !== this._forceLevel.index) {
+          this.hls_.loadLevel = this._forceLevel.index;
         }
       }
     },
 
     _parseLevels: function() {
       this._levels = [];
-      this._currentLevel = undefined;
+      this._forceLevel = undefined;
 
       if (this.hls_.levels) {
         var i;
@@ -210,7 +216,7 @@
             label: 'auto',
             index: -1
           });
-          this._currentLevel = this._levels[0];
+          this._forceLevel = this._levels[0];
         }
 
         for (i = 0; i < this.hls_.levels.length; i++) {
@@ -332,14 +338,17 @@
     },
 
     currentLevel: function() {
-      return this._currentLevel;
+      return (this._forceLevel.index === -1) ? this._levels[this.hls_.currentLevel+1] : this._forceLevel;
+    },
+
+    isAutoLevel: function() {
+      return this._forceLevel.index === -1;
     },
 
     setLevel: function(level) {
-      this._currentLevel = level;
+      this._forceLevel = level;
       this.hls_.currentLevel = level.index;
       this.hls_.loadLevel = level.index;
-      this.trigger('levelswitched');
     },
 
     getLevels: function() {
