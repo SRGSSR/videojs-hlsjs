@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.10 - 2016-11-10
+/*! videojs-hlsjs - v0.1.10 - 2016-11-14
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -185,36 +185,38 @@
     },
 
     onManifestParsed: function() {
-      if (this.autoplay() && this.paused() && !this.wasPaused_) {
-        this.play();
-      }
+      var hasAutoLevel = !this.options_.disableAutoLevel,
+          startLevel, autoLevel;
 
       this._parseLevels();
 
       if (this._levels.length > 0) {
-        var hasAutoLevel = !this.options_.disableAutoLevel;
-        if (hasAutoLevel && !this.options_.startLevelHeight) {
-          var level = this._levels[this._levels.length-1];
-          this.setLevel(level);
-          this.hls_.startLevel = level.index;
-        } else  if (this.options_.startLevelHeight) {
-          var i, startLevel, height = this.options_.startLevelHeight;
-          for (i = 0; i < this._levels.length; i++) {
-            var cLevel = this._levels[i],
-                cDiff = Math.abs(height - cLevel.height),
-                pLevel = startLevel,
-                pDiff = (pLevel !== undefined) ? Math.abs(height - pLevel.height) : undefined;
+        if (this.options_.setLevelByHeight) {
+          startLevel = this._getLevelByHeight(this.options_.setLevelByHeight);
+          autoLevel = false;
+        } else if (this.options_.startLevelByHeight) {
+          startLevel = this._getLevelByHeight(this.options_.startLevelByHeight);
+          autoLevel = hasAutoLevel;
+        } 
 
-            if (pDiff === undefined || (pDiff > cDiff)) {
-              startLevel = this._levels[i];
-            }
-          }
-
-          if (startLevel) {
-            this.setLevel(startLevel);
-            this.hls_.startLevel = startLevel.index;
-          }
+        if (!hasAutoLevel && (!startLevel || startLevel.index === -1)) {
+          startLevel = this._levels[this._levels.length-1];
+          autoLevel = false;
         }
+      } else if (!hasAutoLevel) {
+        startLevel = {index: this.hls_.levels.length-1};
+        autoLevel = false;
+      }
+
+      if (startLevel) {
+        if (!autoLevel) {
+          this.setLevel(startLevel);
+        }
+        this.hls_.startLevel = startLevel.index;
+      }
+
+      if (this.autoplay() && this.paused() && !this.wasPaused_) {
+        this.play();
       }
 
       this.hls_.startLoad(this.startPosition_);
@@ -227,6 +229,21 @@
           this.hls_.loadLevel = this._forceLevel.index;
         }
       }
+    },
+
+    _getLevelByHeight: function (h) {
+      var i, result;
+      for (i = 0; i < this._levels.length; i++) {
+        var cLevel = this._levels[i],
+            cDiff = Math.abs(h - cLevel.height),
+            pLevel = result,
+            pDiff = (pLevel !== undefined) ? Math.abs(h - pLevel.height) : undefined;
+
+        if (pDiff === undefined || (pDiff > cDiff)) {
+          result = this._levels[i];
+        }
+      }
+      return result;
     },
 
     _parseLevels: function() {
@@ -319,7 +336,7 @@
       }
 
       if (this._forceLevel) {
-        this.options_.startLevelHeight = this._forceLevel.height;
+        this.options_.setLevelByHeight = this._forceLevel.height;
       }
 
       this._initHls();
