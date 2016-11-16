@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v0.1.10 - 2016-11-14
+/*! videojs-hlsjs - v0.2.0 - 2016-11-16
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
