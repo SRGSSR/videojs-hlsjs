@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.0.0 - 2016-11-28
+/*! videojs-hlsjs - v1.0.0 - 2016-11-30
 * Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
@@ -28,6 +28,7 @@
       this.wasPaused_ = undefined;
       this.forceLevel_ = undefined;
       this.lastLevel_ = undefined;
+      this.starttime_ = -1;
       this.levels_ = [];
 
       this.hls_.attachMedia(this.el_);
@@ -161,7 +162,7 @@
         this.play();
       }
 
-      this.hls_.startLoad();
+      this.hls_.startLoad(this.starttime());
       this.trigger('levelsloaded');
     },
 
@@ -302,6 +303,18 @@
       this.hls_.loadLevel = level.index;
       if (!wasPaused) {
         this.play();
+      }
+    },
+
+    supportsStarttime: function() {
+      return true;
+    },
+
+    starttime: function(starttime) {
+      if (starttime) {
+        this.starttime_ = starttime;
+      } else {
+        return this.starttime_;
       }
     },
 
