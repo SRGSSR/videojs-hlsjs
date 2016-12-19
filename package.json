@@ -1,31 +1,26 @@
 {
   "name": "videojs-hlsjs",
-  "version": "1.1.0",
-  "author": "srgssr",
-  "description": "A revolutionary plugin for video.js",
-  "license": "Apache-2.0",
-  "main": "./dist/videojs-hlsjs.js",
+  "version": "1.1.1",
+  "description": "hls.js playback plugin for videojs",
   "repository": {
-    "type": "git",
-    "url": "git@github.com:srgssr/videojs-hlsjs.git"
+      "type": "git",
+      "url": "https://github.com/SRGSSR/videojs-hlsjs.git"
   },
-  "keywords": [
-    "videojs",
-    "html5",
-    "flash",
-    "video",
-    "player"
-  ],
-  "dependencies": {},
+  "keywords": ["videojs", "videojs-plugin", "hls", "hls.js" ],
+  "license": "MIT",
+  "author": "SRGSSR",
+  "dependencies": {
+      "video.js": "^5.8.5",
+      "hls.js": "^0.6.10"
+  },
   "devDependencies": {
-    "grunt": "1.0.1",
-    "grunt-contrib-clean": "1.0.0",
-    "grunt-contrib-concat": "1.0.1",
-    "grunt-contrib-jshint": "1.0.0",
-    "grunt-contrib-uglify": "1.0.1",
-    "grunt-contrib-connect": "1.0.2",
-    "grunt-contrib-watch": "1.0.0",
-    "hls.js": "git://github.com/dailymotion/hls.js.git#^v0.6.10",
-    "video.js": "^5.9.0"
+      "grunt": "^1.0.1",
+      "grunt-contrib-clean": "^1.0.0",
+      "grunt-contrib-concat": "^1.0.1",
+      "grunt-contrib-jshint": "^1.1.0",
+      "grunt-contrib-uglify": "^2.0.0",
+      "grunt-contrib-connect": "^1.0.2",
+      "grunt-contrib-watch": "^1.0.0",
+      "load-grunt-tasks": "^3.5.2"
   }
 }

@@ -1,12 +1,12 @@
 'use strict';
 
 module.exports = function (grunt) {
+  require('load-grunt-tasks')(grunt);
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
-    '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-    '* Copyright (c) <%= grunt.template.today("yyyy") %> <%= pkg.author %>;' +
-    ' Licensed <%= pkg.license %> */\n',
+            '<%= grunt.template.today("yyyy-mm-dd") %>*/\n',
     clean: {
       files: ['dist']
     },
@@ -64,18 +64,7 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-clean');
-  grunt.loadNpmTasks('grunt-contrib-connect');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-contrib-watch');
-
-  grunt.registerTask('build',
-    ['clean',
-     'jshint',
-     'concat',
-     'uglify']);
-
+  grunt.registerTask('build', ['jshint', 'concat', 'uglify']);
   grunt.registerTask('serve', ['jshint', 'connect', 'watch']);
+  grunt.registerTask('default', ['clean', 'build']);
 };
