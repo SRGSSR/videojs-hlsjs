@@ -18,20 +18,17 @@ Videojs hls.js offers hls playback using [hls.js](https://github.com/dailymotion
 Download videojs-hlsjs and include it in your page along with video.js:
 
 ```html
-<video id=example-video width=600 height=300 class="video-js vjs-default-skin" controls>
-  <source
-     src="https://example.com/index.m3u8"
-     type="application/x-mpegURL">
+<video id="video" class="video-js vjs-default-skin" controls>
+    <source src="http://www.streambox.fr/playlists/x36xhzz/x36xhzz.m3u8" type="application/vnd.apple.mpegurl">
 </video>
 <script src="video.js"></script>
 <script src="videojs-hlsjs.js"></script>
 <script>
-var player = videojs('example-video');
-player.play();
+    var player = videojs('video');
 </script>
 ```
 
-There's also a [working example](example.html) of the plugin that you can check out.
+There's also a [working example](index.html) of the plugin that you can check out.
 
 ## Documentation
 
@@ -54,10 +51,22 @@ about th different events here: [Hls.js Runtime Events](https://github.com/daily
 You can pass in options just like you would for other parts of video.js:
 
 #### hlsjs.favorNativeHLS
-Type: `boolean`
+Type: `Boolean`
 
 When the `favorNativeHLS` property is set to `true`, the plugin will prioritize native hls
 over MSE. In the case native streaming is available other options won't have any effect.
+
+#### hlsjs.disableAutoLevel
+Type: `Boolean`
+
+When the `disableAutoLevel` property is set to `true`, the plugin will disable auto level switching.
+Useful for browsers that have trouble switching between different qualities.
+
+#### hlsjs.setLevelByHeight
+Type: `Number`
+
+When the `setLevelByHeight` property is present, the plugin will start the video on the closest quality to the
+specified height. If height metadata is not present in the HLS playlist this property will be ignored.
 
 #### hlsjs.hls
 Type `object`

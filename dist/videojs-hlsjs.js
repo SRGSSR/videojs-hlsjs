@@ -1,5 +1,4 @@
-/*! videojs-hlsjs - v1.1.0 - 2016-11-30
-* Copyright (c) 2016 srgssr; Licensed Apache-2.0 */
+/*! videojs-hlsjs - v1.1.0 - 2016-12-19*/
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
@@ -360,4 +359,4 @@
     videojs.options.techOrder.push('Hlsjs');
   }
 
-})(window, videojs, Hls, document);
+})(window, window.videojs, window.Hls, document);

@@ -1,15 +1,14 @@
 {
-  "browser": true,
-  "curly": true,
-  "eqeqeq": true,
-  "quotmark": "single",
-  "trailing": true,
-  "undef": true,
-  "predef": [
-    "videojs",
-    "Hls",
-    "HlsJs",
-    "require",
-    "module"
-  ]
+    "curly": true,
+    "eqeqeq": true,
+    "immed": true,
+    "latedef": true,
+    "newcap": true,
+    "noarg": true,
+    "sub": true,
+    "undef": true,
+    "boss": true,
+    "eqnull": true,
+    "browser": true,
+    "smarttabs": true
 }
