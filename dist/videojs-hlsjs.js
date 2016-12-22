@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.1.1 - 2016-12-22*/
+/*! videojs-hlsjs - v1.2.0 - 2016-12-22*/
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
