@@ -253,8 +253,8 @@
                    Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT,
                    Hls.ErrorDetails.MANIFEST_PARSING_ERROR];
 
-      videojs.log.warn('HLSJS: An error occurred: "' + data.details + '"');
       if (abort.indexOf(data.details) >= 0) {
+        videojs.log.error('HLSJS: Fatal error: "' + data.details + '", aborting playback.');
         this.hls_.destroy();
         this.error = function() {
           return {code: 3};
@@ -264,19 +264,19 @@
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
-              videojs.log.warn('HLSJS: Network error encountered: "' + data.details + '", trying to recover...');
+              videojs.log.warn('HLSJS: Network error: "' + data.details + '", trying to recover...');
               this.hls_.startLoad();
               this.trigger('waiting');
               break;
 
             case Hls.ErrorTypes.MEDIA_ERROR:
-              videojs.log.warn('HLSJS: Media error encountered: "' + data.details + '", trying to recover...');
+              videojs.log.warn('HLSJS: Media error: "' + data.details + '", trying to recover...');
               this.hls_.swapAudioCodec();
               this.hls_.recoverMediaError();
               this.trigger('waiting');
               break;
             default:
-              videojs.log.error('HLSJS: Fatal error encountered: "' + data.details + '", aborting playback.');
+              videojs.log.error('HLSJS: Fatal error: "' + data.details + '", aborting playback.');
               this.hls_.destroy();
               this.error = function() {
                 return {code: 3};
@@ -285,6 +285,7 @@
               break;
           }
         } else if (data.details === Hls.ErrorDetails.BUFFER_APPENDING_ERROR) {
+          videojs.log.warn('HLSJS: Buffer error: "' + data.details + '", trying to recover...');
           this.wasPaused_ = this.paused();
           this.hls_.swapAudioCodec();
           this.hls_.recoverMediaError();
