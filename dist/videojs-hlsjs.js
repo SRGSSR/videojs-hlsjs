@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.2.0 - 2016-12-22*/
+/*! videojs-hlsjs - v1.2.1 - 2017-01-20*/
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
@@ -24,7 +24,6 @@
 
       this.el_.addEventListener('error', videojs.bind(this, this.onMediaError_));
 
-      this.wasPaused_ = undefined;
       this.forceLevel_ = undefined;
       this.lastLevel_ = undefined;
       this.starttime_ = -1;
@@ -62,9 +61,6 @@
 
     onMediaAttached_: function() {
       this.triggerReady();
-      if (this.wasPaused_) {
-        this.pause();
-      }
     },
 
     currentFragmentTimeRange_: function() {
@@ -157,7 +153,7 @@
         this.hls_.startLevel = startLevel.index;
       }
 
-      if (this.autoplay() && this.paused() && !this.wasPaused_) {
+      if (this.autoplay() && this.paused()) {
         this.play();
       }
 
@@ -270,9 +266,16 @@
               break;
 
             case Hls.ErrorTypes.MEDIA_ERROR:
+              var startLoad = function() {
+                this.hls_.startLoad();
+                this.hls_.off(startLoad);
+              }.bind(this);
+
               videojs.log.warn('HLSJS: Media error: "' + data.details + '", trying to recover...');
               this.hls_.swapAudioCodec();
               this.hls_.recoverMediaError();
+              this.hls_.on(Hls.Events.MEDIA_ATTACHED, startLoad);
+
               this.trigger('waiting');
               break;
             default:
@@ -284,12 +287,6 @@
               this.trigger('error');
               break;
           }
-        } else if (data.details === Hls.ErrorDetails.BUFFER_APPENDING_ERROR) {
-          videojs.log.warn('HLSJS: Buffer error: "' + data.details + '", trying to recover...');
-          this.wasPaused_ = this.paused();
-          this.hls_.swapAudioCodec();
-          this.hls_.recoverMediaError();
-          this.trigger('waiting');
         }
       }
     },
@@ -306,13 +303,9 @@
     },
 
     setLevel: function(level) {
-      var wasPaused = this.paused();
       this.forceLevel_ = level;
       this.hls_.currentLevel = level.index;
       this.hls_.loadLevel = level.index;
-      if (!wasPaused) {
-        this.play();
-      }
     },
 
     supportsStarttime: function() {
