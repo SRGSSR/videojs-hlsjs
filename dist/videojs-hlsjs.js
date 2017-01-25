@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.2.1 - 2017-01-20*/
+/*! videojs-hlsjs - v1.2.1 - 2017-01-25*/
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
@@ -81,7 +81,6 @@
 
     duration: function() {
       var timeRange = this.currentFragmentTimeRange_();
-      console.log("videojs-hlsjs - duration ", timeRange.end - timeRange.start);
       return timeRange.end - timeRange.start;
     },
 
@@ -91,7 +90,6 @@
       }
 
       this.lastLevel_ = this.hls_.currentLevel;
-      // console.log(Html5.prototype.currentTime.apply(this));
       return Html5.prototype.currentTime.apply(this);
     },
 
