@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.2.1 - 2017-01-25*/
+/*! videojs-hlsjs - v1.2.1 - 2017-01-26*/
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
@@ -20,12 +20,14 @@
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached_));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed_));
       this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitch_));
+      this.hls_.on(Hls.Events.LEVEL_UPDATE, videojs.bind(this, this.updateTimeRange_));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError_));
 
       this.el_.addEventListener('error', videojs.bind(this, this.onMediaError_));
 
       this.forceLevel_ = undefined;
       this.lastLevel_ = undefined;
+      this.timeRange_ = undefined;
       this.starttime_ = -1;
       this.levels_ = [];
 
@@ -63,28 +65,34 @@
       this.triggerReady();
     },
 
-    currentFragmentTimeRange_: function() {
+    updateTimeRange_: function() {
       var range;
       if (this.hls_ && this.hls_.currentLevel >= 0) {
         var details = this.hls_.levels[this.hls_.currentLevel].details,
             fragments = details.fragments, isLive = details.isLive,
-            firstFragment = fragments[((!isLive) ? 0 : 1)],
+            firstFragment = fragments[((!isLive) ? 0 : 2)],
             lastFragment = fragments[((!isLive) ? fragments.length-1 : fragments.length-3)];
 
         range =  {
           start: firstFragment.start,
           end: lastFragment.start + lastFragment.duration
         };
+      } else if (!this.timeRange_) {
+        range = {start: 0, end: Html5.prototype.duration.apply(this)};
+      } else {
+        range = this.timeRange_;
       }
-      return (range) ? range : {start: 0, end: Html5.prototype.duration.apply(this)};
+
+      this.timeRange_ = range;
     },
 
     duration: function() {
-      var timeRange = this.currentFragmentTimeRange_();
-      return timeRange.end - timeRange.start;
+      this.updateTimeRange_();
+      return (this.timeRange_) ? this.timeRange_.end - this.timeRange_.start : undefined;
     },
 
     currentTime: function() {
+      this.updateTimeRange_();
       if (this.hls_.currentLevel !== this.lastLevel_) {
         this.trigger('levelswitched');
       }
@@ -94,12 +102,15 @@
     },
 
     seekable: function() {
-      var timeRange = this.currentFragmentTimeRange_();
-      return {
-        start: function() { return timeRange.start; },
-        end: function() { return timeRange.end; },
-        length: 1
-      };
+      if (this.timeRange_) {
+        return {
+          start: function() { return this.timeRange_.start; }.bind(this),
+          end: function() { return this.timeRange_.end; }.bind(this),
+          length: 1
+        };
+      } else {
+        return {length: 0};
+      }
     },
 
     onManifestParsed_: function() {
@@ -247,7 +258,7 @@
             case Hls.ErrorTypes.MEDIA_ERROR:
               var startLoad = function() {
                 this.hls_.startLoad();
-                this.hls_.off(startLoad);
+                this.hls_.off(Hls.Events.MEDIA_ATTACHED, startLoad);
               }.bind(this);
 
               videojs.log.warn('HLSJS: Media error: "' + data.details + '", trying to recover...');
