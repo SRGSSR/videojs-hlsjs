@@ -78,7 +78,10 @@
           end: lastFragment.start + lastFragment.duration
         };
       } else if (!this.timeRange_) {
-        range = {start: 0, end: Html5.prototype.duration.apply(this)};
+        var duration = Html5.prototype.duration.apply(this);
+        if (duration && !isNaN(duration)) {
+          range = {start: 0, end: duration};
+        }
       } else {
         range = this.timeRange_;
       }
