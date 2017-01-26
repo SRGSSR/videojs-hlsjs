@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.2.1 - 2017-01-20*/
+/*! videojs-hlsjs - v1.3.0 - 2017-01-26*/
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
@@ -20,12 +20,14 @@
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached_));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed_));
       this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitch_));
+      this.hls_.on(Hls.Events.LEVEL_UPDATE, videojs.bind(this, this.updateTimeRange_));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError_));
 
       this.el_.addEventListener('error', videojs.bind(this, this.onMediaError_));
 
-      this.forceLevel_ = undefined;
+      this.currentLevel_ = undefined;
       this.lastLevel_ = undefined;
+      this.timeRange_ = undefined;
       this.starttime_ = -1;
       this.levels_ = [];
 
@@ -63,63 +65,54 @@
       this.triggerReady();
     },
 
-    currentFragmentTimeRange_: function() {
+    updateTimeRange_: function() {
       var range;
       if (this.hls_ && this.hls_.currentLevel >= 0) {
         var details = this.hls_.levels[this.hls_.currentLevel].details,
             fragments = details.fragments, isLive = details.isLive,
-            firstFragment = fragments[((!isLive) ? 0 : 1)],
+            firstFragment = fragments[((!isLive) ? 0 : 2)],
             lastFragment = fragments[((!isLive) ? fragments.length-1 : fragments.length-3)];
 
         range =  {
           start: firstFragment.start,
           end: lastFragment.start + lastFragment.duration
         };
+      } else if (!this.timeRange_) {
+        var duration = Html5.prototype.duration.apply(this);
+        if (duration && !isNaN(duration)) {
+          range = {start: 0, end: duration};
+        }
+      } else {
+        range = this.timeRange_;
       }
 
-      return (range) ? range : {start: 0, end: Html5.prototype.duration.apply(this)};
+      this.timeRange_ = range;
     },
 
     duration: function() {
-      var timeRange = this.currentFragmentTimeRange_();
-      return timeRange.end - timeRange.start;
-    },
-
-    setCurrentTime: function(seconds) {
-      var time = seconds,
-          timeRange = this.currentFragmentTimeRange_();
-
-      time = timeRange.start + time;
-      time = (timeRange.end < time) ? timeRange.end : time;
-
-      Html5.prototype.setCurrentTime.call(this, time);
+      this.updateTimeRange_();
+      return (this.timeRange_) ? this.timeRange_.end - this.timeRange_.start : undefined;
     },
 
     currentTime: function() {
-      var time = Html5.prototype.currentTime.apply(this),
-          timeRange = this.currentFragmentTimeRange_(),
-          // time is not in range we are dealing with and hls live stream
-          seconds = (time < timeRange.start) ? time : time - timeRange.start;
-
+      this.updateTimeRange_();
       if (this.hls_.currentLevel !== this.lastLevel_) {
         this.trigger('levelswitched');
       }
 
       this.lastLevel_ = this.hls_.currentLevel;
-
-      return seconds < 0 ? 0 : seconds;
+      return Html5.prototype.currentTime.apply(this);
     },
 
     seekable: function() {
-      var timeRange = Html5.prototype.seekable.apply(this);
-      if (timeRange.length > 0) {
+      if (this.timeRange_) {
         return {
-          start: function() { return 0; },
-          end: function() { return this.duration(); }.bind(this),
+          start: function() { return this.timeRange_.start; }.bind(this),
+          end: function() { return this.timeRange_.end; }.bind(this),
           length: 1
         };
       } else {
-        return timeRange;
+        return {length: 0};
       }
     },
 
@@ -162,9 +155,9 @@
     },
 
     onLevelSwitch_: function() {
-      if (this.forceLevel_) {
-        if (this.hls_.loadLevel !== this.forceLevel_.index) {
-          this.hls_.loadLevel = this.forceLevel_.index;
+      if (this.currentLevel_) {
+        if (this.hls_.loadLevel !== this.currentLevel_.index) {
+          this.hls_.loadLevel = this.currentLevel_.index;
         }
       }
     },
@@ -186,7 +179,7 @@
 
     parseLevels_: function() {
       this.levels_ = [];
-      this.forceLevel_ = undefined;
+      this.currentLevel_ = undefined;
 
       if (this.hls_.levels) {
         var i;
@@ -197,7 +190,7 @@
             index: -1,
             height: -1
           });
-          this.forceLevel_ = this.levels_[0];
+          this.currentLevel_ = this.levels_[0];
         }
 
         for (i = 0; i < this.hls_.levels.length; i++) {
@@ -213,7 +206,7 @@
 
         if (this.levels_.length <= 1) {
           this.levels_ = [];
-          this.forceLevel_ = undefined;
+          this.currentLevel_ = undefined;
         }
       }
     },
@@ -223,8 +216,8 @@
         this.hls_.destroy();
       }
 
-      if (this.forceLevel_) {
-        this.options_.setLevelByHeight = this.forceLevel_.height;
+      if (this.currentLevel_) {
+        this.options_.setLevelByHeight = this.currentLevel_.height;
       }
 
       this.initHls_();
@@ -268,7 +261,7 @@
             case Hls.ErrorTypes.MEDIA_ERROR:
               var startLoad = function() {
                 this.hls_.startLoad();
-                this.hls_.off(startLoad);
+                this.hls_.off(Hls.Events.MEDIA_ATTACHED, startLoad);
               }.bind(this);
 
               videojs.log.warn('HLSJS: Media error: "' + data.details + '", trying to recover...');
@@ -293,19 +286,23 @@
 
     currentLevel: function() {
       var hasAutoLevel = !this.options_.disableAutoLevel;
-      return (this.forceLevel_.index === -1) ?
+      return (this.currentLevel_ && this.currentLevel_.index === -1) ?
                 this.levels_[(hasAutoLevel) ? this.hls_.currentLevel+1  : this.hls_.currentLevel] :
-                this.forceLevel_;
+                this.currentLevel_;
     },
 
     isAutoLevel: function() {
-      return this.forceLevel_.index === -1;
+      return this.currentLevel_ && this.currentLevel_.index === -1;
     },
 
     setLevel: function(level) {
-      this.forceLevel_ = level;
+      this.currentLevel_ = level;
       this.hls_.currentLevel = level.index;
       this.hls_.loadLevel = level.index;
+    },
+
+    getLevels: function() {
+      return this.levels_;
     },
 
     supportsStarttime: function() {
@@ -318,10 +315,6 @@
       } else {
         return this.starttime_;
       }
-    },
-
-    getLevels: function() {
-      return this.levels_;
     },
 
     dispose: function() {
