@@ -25,7 +25,7 @@
 
       this.el_.addEventListener('error', videojs.bind(this, this.onMediaError_));
 
-      this.forceLevel_ = undefined;
+      this.currentLevel_ = undefined;
       this.lastLevel_ = undefined;
       this.timeRange_ = undefined;
       this.starttime_ = -1;
@@ -152,9 +152,9 @@
     },
 
     onLevelSwitch_: function() {
-      if (this.forceLevel_) {
-        if (this.hls_.loadLevel !== this.forceLevel_.index) {
-          this.hls_.loadLevel = this.forceLevel_.index;
+      if (this.currentLevel_) {
+        if (this.hls_.loadLevel !== this.currentLevel_.index) {
+          this.hls_.loadLevel = this.currentLevel_.index;
         }
       }
     },
@@ -176,7 +176,7 @@
 
     parseLevels_: function() {
       this.levels_ = [];
-      this.forceLevel_ = undefined;
+      this.currentLevel_ = undefined;
 
       if (this.hls_.levels) {
         var i;
@@ -187,7 +187,7 @@
             index: -1,
             height: -1
           });
-          this.forceLevel_ = this.levels_[0];
+          this.currentLevel_ = this.levels_[0];
         }
 
         for (i = 0; i < this.hls_.levels.length; i++) {
@@ -203,7 +203,7 @@
 
         if (this.levels_.length <= 1) {
           this.levels_ = [];
-          this.forceLevel_ = undefined;
+          this.currentLevel_ = undefined;
         }
       }
     },
@@ -213,8 +213,8 @@
         this.hls_.destroy();
       }
 
-      if (this.forceLevel_) {
-        this.options_.setLevelByHeight = this.forceLevel_.height;
+      if (this.currentLevel_) {
+        this.options_.setLevelByHeight = this.currentLevel_.height;
       }
 
       this.initHls_();
@@ -283,19 +283,23 @@
 
     currentLevel: function() {
       var hasAutoLevel = !this.options_.disableAutoLevel;
-      return (this.forceLevel_.index === -1) ?
+      return (this.currentLevel_ && this.currentLevel_.index === -1) ?
                 this.levels_[(hasAutoLevel) ? this.hls_.currentLevel+1  : this.hls_.currentLevel] :
-                this.forceLevel_;
+                this.currentLevel_;
     },
 
     isAutoLevel: function() {
-      return this.forceLevel_.index === -1;
+      return this.currentLevel_ && this.currentLevel_.index === -1;
     },
 
     setLevel: function(level) {
-      this.forceLevel_ = level;
+      this.currentLevel_ = level;
       this.hls_.currentLevel = level.index;
       this.hls_.loadLevel = level.index;
+    },
+
+    getLevels: function() {
+      return this.levels_;
     },
 
     supportsStarttime: function() {
@@ -308,10 +312,6 @@
       } else {
         return this.starttime_;
       }
-    },
-
-    getLevels: function() {
-      return this.levels_;
     },
 
     dispose: function() {
