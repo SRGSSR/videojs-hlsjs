@@ -148,7 +148,7 @@
       }
 
       if (startLevel) {
-        if (!autoLevel) {
+        if (!autoLevel && this.preload() !== 'none') {
           this.setLevel(startLevel);
         }
         this.hls_.startLevel = startLevel.index;
