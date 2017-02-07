@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.3.0 - 2017-01-26*/
+/*! videojs-hlsjs - v1.3.0 - 2017-02-07*/
 (function (window, videojs, Hls, document, undefined) {
   'use strict';
 
@@ -89,6 +89,14 @@
       this.timeRange_ = range;
     },
 
+    play: function() {
+      if (this.preload() === 'none' && !this.hasStarted_) {
+        this.hls_.startLoad(this.starttime());
+      }
+
+      Html5.prototype.play.apply(this);
+    },
+
     duration: function() {
       this.updateTimeRange_();
       return (this.timeRange_) ? this.timeRange_.end - this.timeRange_.start : undefined;
@@ -146,11 +154,14 @@
         this.hls_.startLevel = startLevel.index;
       }
 
+      if (this.preload() !== 'none') {
+        this.hls_.startLoad(this.starttime());
+      }
+
       if (this.autoplay() && this.paused()) {
         this.play();
       }
 
-      this.hls_.startLoad(this.starttime());
       this.trigger('levelsloaded');
     },
 
