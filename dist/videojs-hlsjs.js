@@ -26,6 +26,7 @@
       this.el_.addEventListener('error', videojs.bind(this, this.onMediaError_));
 
       this.currentLevel_ = undefined;
+      this.setLevelOnLoad_ = undefined;
       this.lastLevel_ = undefined;
       this.timeRange_ = undefined;
       this.starttime_ = -1;
@@ -91,6 +92,9 @@
 
     play: function() {
       if (this.preload() === 'none' && !this.hasStarted_) {
+        if (this.setLevelOnLoad_) {
+          this.setLevel(this.setLevelOnLoad_);
+        }
         this.hls_.startLoad(this.starttime());
       }
 
@@ -148,14 +152,17 @@
       }
 
       if (startLevel) {
-        if (!autoLevel && this.preload() !== 'none') {
-          this.setLevel(startLevel);
-        }
         this.hls_.startLevel = startLevel.index;
       }
 
       if (this.preload() !== 'none') {
+        if (!autoLevel && startLevel) {
+          this.setLevel(startLevel);
+        }
         this.hls_.startLoad(this.starttime());
+      } else if (!autoLevel && startLevel) {
+        this.setLevelOnLoad_ = startLevel;
+        this.currentLevel_ = startLevel;
       }
 
       if (this.autoplay() && this.paused()) {
@@ -308,6 +315,7 @@
 
     setLevel: function(level) {
       this.currentLevel_ = level;
+      this.setLevelOnLoad_ = undefined;
       this.hls_.currentLevel = level.index;
       this.hls_.loadLevel = level.index;
     },
