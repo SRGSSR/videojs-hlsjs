@@ -25,7 +25,7 @@ module.exports = function (grunt) {
         stripBanners: true
       },
       dist: {
-        src: ['lib/**/*.js'],
+        src: ['src/**/*.js'],
         dest: 'dist/<%= pkg.name %>.js'
       }
     },
@@ -49,7 +49,7 @@ module.exports = function (grunt) {
         options: {
           jshintrc: '.jshintrc'
         },
-        src: ['lib/**/*.js']
+        src: ['src/**/*.js']
       },
     },
     watch: {
