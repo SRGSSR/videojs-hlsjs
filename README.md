@@ -11,6 +11,7 @@ Videojs hls.js offers hls playback using [hls.js](https://github.com/dailymotion
   - [Dependencies](#dependencies)
   - [CORS Considerations](#cors-considerations)
   - [Options](#options)
+  - [Event Listeners](#event-listeners)
 - [Original Author](#original-author)
 
 ## Getting Started
