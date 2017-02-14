@@ -1,6 +1,6 @@
 {
   "name": "videojs-hlsjs",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "hls.js playback plugin for videojs",
   "repository": {
       "type": "git",
