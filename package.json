@@ -1,6 +1,6 @@
 {
   "name": "videojs-hlsjs",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "hls.js playback plugin for videojs",
   "repository": {
       "type": "git",
@@ -9,6 +9,12 @@
   "keywords": ["videojs", "videojs-plugin", "hls", "hls.js" ],
   "license": "MIT",
   "author": "SRGSSR",
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "LICENSE-MIT"
+  ],
   "dependencies": {
       "video.js": "^5.8.5",
       "hls.js": "^0.6.10"
