@@ -46,10 +46,12 @@
 </video>
 <script src="node_modules/video.js/dist/video.js"></script>
 <script src="node_modules/hls.js/dist/hls.js"></script>
-<script src="lib/videojs-hlsjs.js"></script>
+<script src="src/videojs-hlsjs.js"></script>
 <script>
   // fire up the plugin
-  videojs('video');
+  videojs('video', {
+    techOrder: ["hlsjs", "html5", "flash"]
+  });
 </script>
 </body>
 </html>

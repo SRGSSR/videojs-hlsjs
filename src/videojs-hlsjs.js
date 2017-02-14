@@ -1,4 +1,4 @@
-(function (window, videojs, Hls, document, undefined) {
+(function (window, videojs, Hls) {
   'use strict';
 
   /**
@@ -7,11 +7,11 @@
   */
   var Component = videojs.getComponent('Component'),
       Tech = videojs.getTech('Tech'),
-      Html5 = videojs.getComponent('Html5'),
-      techOrderIndex = videojs.options.techOrder.indexOf('html5');
+      Html5 = videojs.getComponent('Html5');
 
   var Hlsjs = videojs.extend(Html5, {
     initHls_: function() {
+      this.options_.hls.autoStartLoad = false;
       this.hls_ = new Hls(this.options_.hls);
 
       this.bindExternalCallbacks_();
@@ -133,8 +133,8 @@
       this.parseLevels_();
 
       if (this.levels_.length > 0) {
-        if (this.options_.setLevelByHeight) {
-          startLevel = this.getLevelByHeight_(this.options_.setLevelByHeight);
+        if (this.options_.startLevelByHeight) {
+          startLevel = this.getLevelByHeight_(this.options_.startLevelByHeight);
           autoLevel = false;
         } else if (this.options_.startLevelByHeight) {
           startLevel = this.getLevelByHeight_(this.options_.startLevelByHeight);
@@ -234,7 +234,7 @@
       }
 
       if (this.currentLevel_) {
-        this.options_.setLevelByHeight = this.currentLevel_.height;
+        this.options_.startLevelByHeight = this.currentLevel_.height;
       }
 
       this.initHls_();
@@ -360,17 +360,11 @@
      * @default true
      */
     favorNativeHLS: true,
-    hls: {
-      autoStartLoad: false
-    }
+    hls: {}
   };
 
   Component.registerComponent('Hlsjs', Hlsjs);
-  Tech.registerTech('Hlsjs', Hlsjs);
-  if (techOrderIndex > -1) {
-    videojs.options.techOrder.splice(techOrderIndex, 0, 'Hlsjs');
-  } else {
-    videojs.options.techOrder.push('Hlsjs');
-  }
+  Tech.registerTech('hlsjs', Hlsjs);
+  videojs.options.techOrder.push('hlsjs');
 
-})(window, window.videojs, window.Hls, document);
+})(window, window.videojs, window.Hls);
