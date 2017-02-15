@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.4.1 - 2017-02-14*/
+/*! videojs-hlsjs - v1.4.2 - 2017-02-15*/
 (function (window, videojs, Hls) {
   'use strict';
 
@@ -134,8 +134,8 @@
       this.parseLevels_();
 
       if (this.levels_.length > 0) {
-        if (this.options_.startLevelByHeight) {
-          startLevel = this.getLevelByHeight_(this.options_.startLevelByHeight);
+        if (this.options_.setLevelByHeight) {
+          startLevel = this.getLevelByHeight_(this.options_.setLevelByHeight);
           autoLevel = false;
         } else if (this.options_.startLevelByHeight) {
           startLevel = this.getLevelByHeight_(this.options_.startLevelByHeight);
@@ -235,7 +235,7 @@
       }
 
       if (this.currentLevel_) {
-        this.options_.startLevelByHeight = this.currentLevel_.height;
+        this.options_.setLevelByHeight = this.currentLevel_.height;
       }
 
       this.initHls_();
