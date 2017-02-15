@@ -62,15 +62,23 @@ over MSE. Note that in the case native streaming is available other options won'
 #### hlsjs.disableAutoLevel
 Type: `Boolean`
 
-When the `disableAutoLevel` property is set to `true`, the plugin will disable auto level switching.
-If no level is specified in `hlsjs.startLevelByHeight` the plugin will start with the best quality when this property is set to true.
+When the `disableAutoLevel` property is set to `true`, the plugin will completely disable auto leveling based on bandwidth and remove it from the list of available level options.
+If no level is specified in `hlsjs.startLevelByHeight` or `hlsjs.setLevelByHeight` the plugin will start with the best quality available when this property is set to true.
 Useful for browsers that have trouble switching between different qualities.
 
 #### hlsjs.startLevelByHeight
 Type: `Number`
 
 When the `startLevelByHeight` property is present, the plugin will start the video on the closest quality to the
-specified height. If height metadata is not present in the HLS playlist this property will be ignored.
+specified height but the auto leveling will still be enabled unless `hlsjs.disableAutoLevel` was set to `true`. If height metadata is not present in the HLS playlist this property will be ignored.
+
+#### hlsjs.setLevelByHeight
+Type: `Number`
+
+When the `setLevelByHeight` property is present, the plugin will start the video on the closest quality to the
+specified height. The auto leveling will be disabled but it will still be selectable unless `hlsjs.disableAutoLevel` was set to `true`. If height metadata is not present in the HLS playlist this property will be ignored.
+
+This property takes precedence over `hlsjs.startLevelByHeight`.
 
 #### hlsjs.hls
 Type `object`
@@ -80,7 +88,7 @@ An object containing hls.js configuration parameters, see in detail:
 
 **Exceptions:**
 
-* `autoStartLoad` the loading is done through the `preload` attribute of the video tag.
+* `autoStartLoad` the loading is done through the `preload` attribute of the video tag. This property is always set to `false` when using this plugin.
 * `startLevel` if you set any of the level options above this property will be ignored.
 
 ### Event listeners

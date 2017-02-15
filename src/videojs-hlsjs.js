@@ -133,8 +133,8 @@
       this.parseLevels_();
 
       if (this.levels_.length > 0) {
-        if (this.options_.startLevelByHeight) {
-          startLevel = this.getLevelByHeight_(this.options_.startLevelByHeight);
+        if (this.options_.setLevelByHeight) {
+          startLevel = this.getLevelByHeight_(this.options_.setLevelByHeight);
           autoLevel = false;
         } else if (this.options_.startLevelByHeight) {
           startLevel = this.getLevelByHeight_(this.options_.startLevelByHeight);
@@ -234,7 +234,7 @@
       }
 
       if (this.currentLevel_) {
-        this.options_.startLevelByHeight = this.currentLevel_.height;
+        this.options_.setLevelByHeight = this.currentLevel_.height;
       }
 
       this.initHls_();
