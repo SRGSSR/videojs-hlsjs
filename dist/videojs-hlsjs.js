@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.4.2 - 2017-02-15*/
+/*! videojs-hlsjs - v1.4.2 - 2017-03-01*/
 (function (window, videojs, Hls) {
   'use strict';
 
@@ -19,7 +19,6 @@
 
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached_));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed_));
-      this.hls_.on(Hls.Events.LEVEL_SWITCH, videojs.bind(this, this.onLevelSwitch_));
       this.hls_.on(Hls.Events.LEVEL_UPDATE, videojs.bind(this, this.updateTimeRange_));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError_));
 
@@ -170,14 +169,6 @@
       }
 
       this.trigger('levelsloaded');
-    },
-
-    onLevelSwitch_: function() {
-      if (this.currentLevel_) {
-        if (this.hls_.loadLevel !== this.currentLevel_.index) {
-          this.hls_.loadLevel = this.currentLevel_.index;
-        }
-      }
     },
 
     getLevelByHeight_: function (h) {
