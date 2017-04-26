@@ -17,7 +17,7 @@
   ],
   "dependencies": {
       "video.js": "^5.8.5",
-      "hls.js": ">=0.6.10"
+      "hls.js": "^0.7.0"
   },
   "devDependencies": {
       "grunt": "^1.0.1",
