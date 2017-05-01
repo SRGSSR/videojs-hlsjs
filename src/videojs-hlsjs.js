@@ -18,6 +18,7 @@
 
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached_));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed_));
+      this.hls_.on(Hls.Events.MANIFEST_LOADED, videojs.bind(this, this.initAudioTracks_));
       this.hls_.on(Hls.Events.LEVEL_UPDATE, videojs.bind(this, this.updateTimeRange_));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError_));
 
@@ -168,6 +169,30 @@
       }
 
       this.trigger('levelsloaded');
+    },
+
+    initAudioTracks_: function() {
+      var vjsTracks = this.audioTracks(),
+          hlsTracks = this.hls_.audioTracks,
+          enableTrack = function(tech) {
+            if (this.enabled) {
+                tech.hls_.audioTrack = this.__hlsTrackId;
+            }
+          };
+
+      for (var i = 0; i < hlsTracks.length; i++) {
+        var hlsTrack = hlsTracks[i],
+            vjsTrack = new videojs.AudioTrack({
+              type: hlsTrack.type,
+              language: hlsTrack.lang,
+              label: hlsTrack.name,
+              enabled: i === this.hls_.audioTrack
+            });
+
+        vjsTrack.__hlsTrackId = i;
+        vjsTrack.addEventListener('enabledchange', enableTrack.bind(vjsTrack, this));
+        vjsTracks.addTrack(vjsTrack);
+      }
     },
 
     getLevelByHeight_: function (h) {
