@@ -34,7 +34,11 @@ Download videojs-hlsjs and include it in your page along with video.js:
 </script>
 ```
 
-There's also a [working example](index.html) of the plugin that you can check out.
+There's also a [demo](https://srgssr.github.io/videojs-hlsjs/demo) of the plugin that you can check out.
+
+## Changelog
+
+- 1.4.5: Added text and audio tracks compatibility.
 
 ## Documentation
 
@@ -42,7 +46,7 @@ There's also a [working example](index.html) of the plugin that you can check ou
 This project depends on:
 
 - [video.js](https://github.com/videojs/video.js) 5.8.5+.
-- [hls.js](https://github.com/dailymotion/hls.js) 0.6.10+.
+- [hls.js](https://github.com/dailymotion/hls.js) 0.7.0+.
 
 ### CORS Considerations
 

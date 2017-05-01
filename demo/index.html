@@ -3,8 +3,7 @@
 <head>
   <meta charset="utf-8">
   <title>Videojs HlsJs plugin</title>
-
-  <link href="node_modules/video.js/dist/video-js.css" rel="stylesheet">
+  <link href="//vjs.zencdn.net/5.19.2/video-js.css" rel="stylesheet">
 
   <style>
     body {
@@ -39,16 +38,15 @@
        autoplay
        controls>
   <p>
-    Your browser doesn't support video. Please <a href="http://browsehappy.com/">upgrade your browser</a> to see the
+    Your browser doesn't support video. Please <a href="//browsehappy.com/">upgrade your browser</a> to see the
     example.
   </p>
-  <source src="http://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" type="application/vnd.apple.mpegurl">
+  <source src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" type="application/vnd.apple.mpegurl">
 </video>
-<script src="node_modules/video.js/dist/video.js"></script>
-<script src="node_modules/hls.js/dist/hls.js"></script>
-<script src="src/videojs-hlsjs.js"></script>
+<script src="//vjs.zencdn.net/5.19.2/video.js"></script>
+<script src="//video-dev.github.io/hls.js/dist/hls.js"></script>
+<script src="../dist/videojs-hlsjs.js"></script>
 <script>
-  // fire up the plugin
   videojs('video', {
     techOrder: ["hlsjs", "html5", "flash"]
   });

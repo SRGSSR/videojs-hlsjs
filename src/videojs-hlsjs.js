@@ -18,6 +18,8 @@
 
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached_));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed_));
+      this.hls_.on(Hls.Events.MANIFEST_LOADED, videojs.bind(this, this.initAudioTracks_));
+      this.hls_.on(Hls.Events.MANIFEST_LOADED, videojs.bind(this, this.initTextTracks_));
       this.hls_.on(Hls.Events.LEVEL_UPDATE, videojs.bind(this, this.updateTimeRange_));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError_));
 
@@ -27,6 +29,7 @@
       this.setLevelOnLoad_ = undefined;
       this.lastLevel_ = undefined;
       this.timeRange_ = undefined;
+      this.starttime_ = -1;
       this.levels_ = [];
 
       this.hls_.attachMedia(this.el_);
@@ -92,7 +95,7 @@
         if (this.setLevelOnLoad_) {
           this.setLevel(this.setLevelOnLoad_);
         }
-        this.hls_.startLoad();
+        this.hls_.startLoad(this.starttime());
       }
 
       Html5.prototype.play.apply(this);
@@ -156,7 +159,7 @@
         if (!autoLevel && startLevel) {
           this.setLevel(startLevel);
         }
-        this.hls_.startLoad();
+        this.hls_.startLoad(this.starttime());
       } else if (!autoLevel && startLevel) {
         this.setLevelOnLoad_ = startLevel;
         this.currentLevel_ = startLevel;
@@ -167,6 +170,52 @@
       }
 
       this.trigger('levelsloaded');
+    },
+
+    initAudioTracks_: function() {
+      var vjsTracks = this.audioTracks(),
+          hlsTracks = this.hls_.audioTracks,
+          enableTrack = function(tech) {
+            if (this.enabled) {
+                tech.hls_.audioTrack = this.__hlsTrackId;
+            }
+          };
+
+      for (var i = 0; i < hlsTracks.length; i++) {
+        var hlsTrack = hlsTracks[i],
+            vjsTrack = new videojs.AudioTrack({
+              type: hlsTrack.type,
+              language: hlsTrack.lang,
+              label: hlsTrack.name,
+              enabled: hlsTrack.id === this.hls_.audioTrack
+            });
+
+        vjsTrack.__hlsTrackId = hlsTrack.id;
+        vjsTrack.addEventListener('enabledchange', enableTrack.bind(vjsTrack, this));
+        vjsTracks.addTrack(vjsTrack);
+      }
+    },
+
+    initTextTracks_: function() {
+      var vjsTracks = this.textTracks(),
+          hlsTracks = this.hls_.subtitleTracks,
+          enableTrack = function() {
+            this.tech_.el_.textTracks[this.__hlsTrackId].mode = this.mode;
+          };
+
+      for (var i = 0; i < hlsTracks.length; i++) {
+        var hlsTrack = hlsTracks[i],
+            vjsTrack = new videojs.TextTrack({
+              srclang: hlsTrack.lang,
+              label: hlsTrack.name,
+              mode: (hlsTrack.id === this.hls_.subtitleTrack) ? 'showing' : 'hidden',
+              tech: this
+            });
+
+        vjsTrack.__hlsTrackId = hlsTrack.id;
+        vjsTrack.addEventListener('modechange', enableTrack);
+        vjsTracks.addTrack_(vjsTrack);
+      }
     },
 
     getLevelByHeight_: function (h) {
@@ -311,6 +360,18 @@
 
     getLevels: function() {
       return this.levels_;
+    },
+
+    supportsStarttime: function() {
+      return true;
+    },
+
+    starttime: function(starttime) {
+      if (starttime) {
+        this.starttime_ = starttime;
+      } else {
+        return this.starttime_;
+      }
     },
 
     dispose: function() {
