@@ -34,7 +34,7 @@ Download videojs-hlsjs and include it in your page along with video.js:
 </script>
 ```
 
-There's also a [working example](index.html) of the plugin that you can check out.
+There's also a [demo](https://srgssr.github.io/videojs-hlsjs/demo) of the plugin that you can check out.
 
 ## Changelog
 
