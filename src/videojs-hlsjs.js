@@ -19,6 +19,7 @@
       this.hls_.on(Hls.Events.MEDIA_ATTACHED, videojs.bind(this, this.onMediaAttached_));
       this.hls_.on(Hls.Events.MANIFEST_PARSED, videojs.bind(this, this.onManifestParsed_));
       this.hls_.on(Hls.Events.MANIFEST_LOADED, videojs.bind(this, this.initAudioTracks_));
+      this.hls_.on(Hls.Events.MANIFEST_LOADED, videojs.bind(this, this.initTextTracks_));
       this.hls_.on(Hls.Events.LEVEL_UPDATE, videojs.bind(this, this.updateTimeRange_));
       this.hls_.on(Hls.Events.ERROR, videojs.bind(this, this.onError_));
 
@@ -186,12 +187,34 @@
               type: hlsTrack.type,
               language: hlsTrack.lang,
               label: hlsTrack.name,
-              enabled: i === this.hls_.audioTrack
+              enabled: hlsTrack.id === this.hls_.audioTrack
             });
 
-        vjsTrack.__hlsTrackId = i;
+        vjsTrack.__hlsTrackId = hlsTrack.id;
         vjsTrack.addEventListener('enabledchange', enableTrack.bind(vjsTrack, this));
         vjsTracks.addTrack(vjsTrack);
+      }
+    },
+
+    initTextTracks_: function() {
+      var vjsTracks = this.textTracks(),
+          hlsTracks = this.hls_.subtitleTracks,
+          enableTrack = function() {
+            this.tech_.el_.textTracks[this.__hlsTrackId].mode = this.mode;
+          };
+
+      for (var i = 0; i < hlsTracks.length; i++) {
+        var hlsTrack = hlsTracks[i],
+            vjsTrack = new videojs.TextTrack({
+              srclang: hlsTrack.lang,
+              label: hlsTrack.name,
+              mode: (hlsTrack.id === this.hls_.subtitleTrack) ? 'showing' : 'hidden',
+              tech: this
+            });
+
+        vjsTrack.__hlsTrackId = hlsTrack.id;
+        vjsTrack.addEventListener('modechange', enableTrack);
+        vjsTracks.addTrack_(vjsTrack);
       }
     },
 
