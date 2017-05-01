@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Videojs HlsJs plugin</title>
+  <link href="//vjs.zencdn.net/5.19.2/video-js.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+    }
+
+    .info {
+      background-color: #eee;
+      border: thin solid #333;
+      border-radius: 3px;
+      padding: 0 5px;
+      text-align: center;
+    }
+
+    .video-js {
+      margin: 40px auto;
+    }
+  </style>
+</head>
+<body>
+<div class="info">
+  <p>
+    You can see the VideoJs HlsJs plugin in action below.
+    Look at the source of this page to see how to use it with your videos.
+  </p>
+</div>
+<video id="video"
+       class="video-js vjs-default-skin"
+       height="300"
+       width="600"
+       preload="auto"
+       autoplay
+       controls>
+  <p>
+    Your browser doesn't support video. Please <a href="//browsehappy.com/">upgrade your browser</a> to see the
+    example.
+  </p>
+  <source src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" type="application/vnd.apple.mpegurl">
+</video>
+<script src="//vjs.zencdn.net/5.19.2/video.js"></script>
+<script src="//video-dev.github.io/hls.js/dist/hls.js"></script>
+<script src="../dist/videojs-hlsjs.js"></script>
+<script>
+  videojs('video', {
+    techOrder: ["hlsjs", "html5", "flash"]
+  });
+</script>
+</body>
+</html>
