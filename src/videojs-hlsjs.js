@@ -27,6 +27,7 @@
       this.setLevelOnLoad_ = undefined;
       this.lastLevel_ = undefined;
       this.timeRange_ = undefined;
+      this.starttime_ = -1;
       this.levels_ = [];
 
       this.hls_.attachMedia(this.el_);
@@ -92,7 +93,7 @@
         if (this.setLevelOnLoad_) {
           this.setLevel(this.setLevelOnLoad_);
         }
-        this.hls_.startLoad();
+        this.hls_.startLoad(this.starttime());
       }
 
       Html5.prototype.play.apply(this);
@@ -156,7 +157,7 @@
         if (!autoLevel && startLevel) {
           this.setLevel(startLevel);
         }
-        this.hls_.startLoad();
+        this.hls_.startLoad(this.starttime());
       } else if (!autoLevel && startLevel) {
         this.setLevelOnLoad_ = startLevel;
         this.currentLevel_ = startLevel;
@@ -311,6 +312,18 @@
 
     getLevels: function() {
       return this.levels_;
+    },
+
+    supportsStarttime: function() {
+      return true;
+    },
+
+    starttime: function(starttime) {
+      if (starttime) {
+        this.starttime_ = starttime;
+      } else {
+        return this.starttime_;
+      }
     },
 
     dispose: function() {
