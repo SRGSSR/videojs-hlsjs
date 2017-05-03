@@ -210,9 +210,9 @@
 
     initTextTracks_: function() {
       var i, toRemove = [], vjsTracks = this.textTracks(),
-          hlsTracks = this.hls_.textTracks,
+          hlsTracks = this.hls_.subtitleTracks,
           modeChanged = function() {
-            this.__hlsTrack.mode = this.mode;
+            this.tech_.el_.textTracks[this.__hlsTrack.id].mode = this.mode;
           };
 
       for (i = 0; i < vjsTracks.length; i++) {
@@ -227,25 +227,18 @@
       }
 
       for (i = 0; i < hlsTracks.length; i++) {
-        var hlsTrack = hlsTracks[i];
+        var hlsTrack = hlsTracks[i],
+            vjsTrack = new videojs.TextTrack({
+              srclang: hlsTrack.lang,
+              label: hlsTrack.name,
+              mode: 'hidden',
+              tech: this
+            });
 
-        // Filter out id3 metadata
-        if (hlsTrack.label !== 'id3') {
-            var vjsTrack = new videojs.TextTrack({
-                  srclang: hlsTrack.srclang,
-                  label: hlsTrack.label,
-                  mode: 'hidden',
-                  tech: this
-                });
-
-            if (hlsTrack.mode === 'showing') {
-                // Hide everything since 'subtitles off' is active by default on video.js
-                hlsTrack.mode = 'hidden';
-            }
-            vjsTrack.__hlsTrack = hlsTrack;
-            vjsTrack.addEventListener('modechange', modeChanged);
-            vjsTracks.addTrack_(vjsTrack);
-        }
+        vjsTrack.__hlsTrack = hlsTrack;
+        vjsTrack.addEventListener('modechange', modeChanged);
+        vjsTrack.mode = 'hidden';
+        vjsTracks.addTrack_(vjsTrack);
       }
     },
 
