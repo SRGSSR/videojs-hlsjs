@@ -7,6 +7,10 @@
 
   <style>
     body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
       font-family: Arial, sans-serif;
     }
 
@@ -14,22 +18,28 @@
       background-color: #eee;
       border: thin solid #333;
       border-radius: 3px;
-      padding: 0 5px;
       text-align: center;
+      margin-top: 20px;
+      width: 600px;
+    }
+
+    input#src {
+      margin-top: 20px;
     }
 
     .video-js {
-      margin: 40px auto;
+      margin-top: 20px;
+      margin-botom: 20px;
     }
   </style>
 </head>
 <body>
 <div class="info">
   <p>
-    You can see the VideoJs HlsJs plugin in action below.
-    Look at the source of this page to see how to use it with your videos.
+    Videojs-hlsjs demo page.
   </p>
 </div>
+<input id="src" size="98" type="text" value="http://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8"></input>
 <video id="video"
        class="video-js vjs-default-skin"
        height="300"
@@ -38,17 +48,23 @@
        autoplay
        controls>
   <p>
-    Your browser doesn't support video. Please <a href="//browsehappy.com/">upgrade your browser</a> to see the
+    Your browser doesn't support video. Please <a href="http://browsehappy.com/">upgrade your browser</a> to see the
     example.
   </p>
-  <source src="https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" type="application/vnd.apple.mpegurl">
+  <source src="http://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8" type="application/vnd.apple.mpegurl">
 </video>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
 <script src="//vjs.zencdn.net/5.19.2/video.js"></script>
 <script src="//video-dev.github.io/hls.js/dist/hls.js"></script>
 <script src="../dist/videojs-hlsjs.js"></script>
 <script>
-  videojs('video', {
+  // fire up the plugin
+  var player = videojs('video', {
     techOrder: ["hlsjs", "html5", "flash"]
+  });
+
+  $('#src').change(function() {
+    player.src($('#src').val());
   });
 </script>
 </body>
