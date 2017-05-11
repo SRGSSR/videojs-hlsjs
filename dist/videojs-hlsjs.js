@@ -176,11 +176,46 @@
     initAudioTracks_: function() {
       var i, toRemove = [], vjsTracks = this.audioTracks(),
           hlsTracks = this.hls_.audioTracks,
+          hlsGroups = [],
+          hlsGroupTracks = [],
+          isEnabled = function(track) {
+            var hls = this.hls_;
+            return track.groups.reduce(function (acc, g) {
+              return acc || g.id === hls.audioTrack;
+            }, false);
+          },
           modeChanged = function(tech) {
             if (this.enabled) {
-                tech.hls_.audioTrack = this.__hlsTrackId;
+              var level = tech.currentLevel();
+              var id = this.__hlsGroups.reduce(function(acc, group){
+                if (group.groupId === level.audio) {
+                  acc = group.id;
+                }
+                return acc;
+              }, this.__hlsTrackId);
+              if (id !== this.__hlsTrackId) {
+                tech.hls_.audioTrack = id;
+              }
+
             }
           };
+
+      var g = 0;
+      hlsTracks.forEach(function(track){
+        var name = (typeof track.groupId !== 'undefined') ? track.name : 'no-groups';
+        var group = { id: track.id, groupId: track.groupId };
+        if (typeof hlsGroups[name] === 'undefined') {
+          hlsGroups[name] = g;
+          hlsGroupTracks[g] = [];
+          var t = track;
+          t.groups = [];
+          t.groups.push(group);
+          hlsGroupTracks[g] = t;
+          g++;
+        } else {
+          hlsGroupTracks[hlsGroups[track.name]].groups.push(group);
+        }
+      });
 
       for (i = 0; i < vjsTracks.length; i++) {
         var track = vjsTracks[i];
@@ -193,16 +228,17 @@
         vjsTracks.removeTrack_(toRemove[i]);
       }
 
-      for (i = 0; i < hlsTracks.length; i++) {
-        var hlsTrack = hlsTracks[i],
-            vjsTrack = new videojs.AudioTrack({
-              type: hlsTrack.type,
-              language: hlsTrack.lang,
-              label: hlsTrack.name,
-              enabled: hlsTrack.id === this.hls_.audioTrack
-            });
+      for (i = 0; i < hlsGroupTracks.length; i++) {
+        var hlsTrack = hlsGroupTracks[i];
+        var vjsTrack = new videojs.AudioTrack({
+          type: hlsTrack.type,
+          language: hlsTrack.lang,
+          label: hlsTrack.name,
+          enabled: isEnabled.bind(this, hlsTrack)()
+        });
 
         vjsTrack.__hlsTrackId = hlsTrack.id;
+        vjsTrack.__hlsGroups = hlsTrack.groups;
         vjsTrack.addEventListener('enabledchange', modeChanged.bind(vjsTrack, this));
         vjsTracks.addTrack(vjsTrack);
       }
@@ -214,7 +250,6 @@
           modeChanged = function() {
             this.tech_.el_.textTracks[this.__hlsTrack.vjsId].mode = this.mode;
           };
-
       for (i = 0; i < vjsTracks.length; i++) {
         var track = vjsTracks[i];
         if (track.__hlsTrack !== undefined) {
@@ -280,12 +315,21 @@
 
         for (i = 0; i < this.hls_.levels.length; i++) {
           var level = this.hls_.levels[i];
+          var lvl = null;
           if (level.height) {
-            this.levels_.push({
+            lvl = {
                 label: level.height + 'p',
                 index: i,
                 height: level.height
-            });
+            };
+          }
+          if (typeof level.attrs.AUDIO !== 'undefined') {
+            lvl = lvl || {};
+            lvl.index =  i;
+            lvl.audio = level.attrs.AUDIO;
+          }
+          if (lvl) {
+            this.levels_.push(lvl);
           }
         }
 
