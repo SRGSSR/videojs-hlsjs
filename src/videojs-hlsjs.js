@@ -211,7 +211,7 @@
       var i, toRemove = [], vjsTracks = this.textTracks(),
           hlsTracks = this.hls_.subtitleTracks,
           modeChanged = function() {
-            this.tech_.el_.textTracks[this.__hlsTrack.id].mode = this.mode;
+            this.tech_.el_.textTracks[this.__hlsTrack.vjsId].mode = this.mode;
           };
 
       for (i = 0; i < vjsTracks.length; i++) {
@@ -224,20 +224,25 @@
       for (i = 0; i < toRemove.length; i++) {
         vjsTracks.removeTrack_(toRemove[i]);
       }
-
+      var hlsHasDefaultTrack = false;
       for (i = 0; i < hlsTracks.length; i++) {
         var hlsTrack = hlsTracks[i],
             vjsTrack = new videojs.TextTrack({
               srclang: hlsTrack.lang,
               label: hlsTrack.name,
-              mode: 'hidden',
+              mode: ((typeof hlsTrack.default !== 'undefined') && hlsTrack.default && !hlsHasDefaultTrack) ? 'showing' : 'hidden',
               tech: this
             });
-
+        if ((typeof hlsTrack.default !== 'undefined') && hlsTrack.default) {
+          hlsHasDefaultTrack = true;
+        }
         vjsTrack.__hlsTrack = hlsTrack;
+        vjsTrack.__hlsTrack.vjsId = i+1;
         vjsTrack.addEventListener('modechange', modeChanged);
-        vjsTrack.mode = 'hidden';
         vjsTracks.addTrack_(vjsTrack);
+      }
+      if (hlsHasDefaultTrack) {
+        this.trigger('texttrackchange');
       }
     },
 
