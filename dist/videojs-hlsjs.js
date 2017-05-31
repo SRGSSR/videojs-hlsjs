@@ -1,4 +1,4 @@
-/*! videojs-hlsjs - v1.4.6 - 2017-05-03*/
+/*! videojs-hlsjs - v1.4.6 - 2017-05-31*/
 (function (window, videojs, Hls) {
   'use strict';
 
@@ -69,22 +69,28 @@
 
     updateTimeRange_: function() {
       var range;
-      if (this.hls_ && this.hls_.currentLevel >= 0) {
-        var details = this.hls_.levels[this.hls_.currentLevel].details,
-            fragments = details.fragments, isLive = details.isLive,
-            firstFragment = fragments[((!isLive) ? 0 : 2)],
-            lastFragment = fragments[((!isLive) ? fragments.length-1 : fragments.length-3)];
 
-        range =  {
-          start: firstFragment.start,
-          end: lastFragment.start + lastFragment.duration
-        };
-      } else if (!this.timeRange_) {
+      if (this.hls_ && this.hls_.currentLevel >= 0) {
+        var details = this.hls_.levels[this.hls_.currentLevel].details;
+
+        if (details) {
+            var fragments = details.fragments, isLive = details.live,
+                firstFragment = fragments[((!isLive) ? 0 : 2)],
+                lastFragment = fragments[((!isLive) ? fragments.length-1 : fragments.length-3)];
+
+            range =  {
+              start: firstFragment.start,
+              end: lastFragment.start + lastFragment.duration
+            };
+        }
+      }
+
+      if (!range && !this.timeRange_) {
         var duration = Html5.prototype.duration.apply(this);
         if (duration && !isNaN(duration)) {
           range = {start: 0, end: duration};
         }
-      } else {
+      } else if (!range) {
         range = this.timeRange_;
       }
 
