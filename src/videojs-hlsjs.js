@@ -74,8 +74,11 @@
 
         if (details) {
             var fragments = details.fragments, isLive = details.live,
-                firstFragment = fragments[((!isLive) ? 0 : 2)],
-                lastFragment = fragments[((!isLive) ? fragments.length-1 : fragments.length-3)];
+                firstFragmentIndex = !isLive ? 0 : 2,
+                firstFragment = fragments[firstFragmentIndex > fragments.length ? 0 : firstFragmentIndex],
+                liveSyncDurationCount = this.hls_.config.liveSyncDurationCount,
+                lastFragmentIndex = !isLive ? fragments.length - 1 : fragments.length - liveSyncDurationCount,
+                lastFragment = fragments[lastFragmentIndex < 0 ? 0 : lastFragmentIndex];
 
             range =  {
               start: firstFragment.start,
