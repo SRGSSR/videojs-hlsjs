@@ -329,7 +329,7 @@
             level = {
                 label: hlsLevel.height + 'p',
                 index: i,
-                bandwidth: hlsLevel.bandwidth,
+                bitrate: hlsLevel.bitrate,
                 height: hlsLevel.height
             };
           }
