@@ -195,13 +195,13 @@
           modeChanged = function(tech) {
             if (this.enabled) {
               var level = tech.currentLevel();
-              var id = this.__hlsGroups.reduce(function(acc, group){
+              var id = this.hlsGroups_.reduce(function(acc, group){
                 if (group.groupId === level.audio) {
                   acc = group.id;
                 }
                 return acc;
-              }, this.__hlsTrackId);
-              if (id !== this.__hlsTrackId) {
+              }, this.hlsTrackId_);
+              if (id !== this.hlsTrackId_) {
                 tech.hls_.audioTrack = id;
               }
 
@@ -227,7 +227,7 @@
 
       for (i = 0; i < vjsTracks.length; i++) {
         var track = vjsTracks[i];
-        if (track.__hlsTrackId !== undefined) {
+        if (track.hlsTrackId_ !== undefined) {
             toRemove.push(track);
         }
       }
@@ -245,8 +245,8 @@
           enabled: isEnabled.bind(this, hlsTrack)()
         });
 
-        vjsTrack.__hlsTrackId = hlsTrack.id;
-        vjsTrack.__hlsGroups = hlsTrack.groups;
+        vjsTrack.hlsTrackId_ = hlsTrack.id;
+        vjsTrack.hlsGroups_ = hlsTrack.groups;
         vjsTrack.addEventListener('enabledchange', modeChanged.bind(vjsTrack, this));
         vjsTracks.addTrack(vjsTrack);
       }
@@ -256,11 +256,11 @@
       var i, toRemove = [], vjsTracks = this.textTracks(),
           hlsTracks = this.hls_.subtitleTracks,
           modeChanged = function() {
-            this.tech_.el_.textTracks[this.__hlsTrack.vjsId].mode = this.mode;
+            this.tech_.el_.textTracks[this.hlsTrack_.vjsId].mode = this.mode;
           };
       for (i = 0; i < vjsTracks.length; i++) {
         var track = vjsTracks[i];
-        if (track.__hlsTrack !== undefined) {
+        if (track.hlsTrack_ !== undefined) {
             toRemove.push(track);
         }
       }
@@ -280,8 +280,8 @@
         if ((typeof hlsTrack.default !== 'undefined') && hlsTrack.default) {
           hlsHasDefaultTrack = true;
         }
-        vjsTrack.__hlsTrack = hlsTrack;
-        vjsTrack.__hlsTrack.vjsId = i+1;
+        vjsTrack.hlsTrack_ = hlsTrack;
+        vjsTrack.hlsTrack_.vjsId = i+1;
         vjsTrack.addEventListener('modechange', modeChanged);
         vjsTracks.addTrack_(vjsTrack);
       }
@@ -322,22 +322,26 @@
         }
 
         for (i = 0; i < this.hls_.levels.length; i++) {
-          var level = this.hls_.levels[i];
-          var lvl = null;
-          if (level.height) {
-            lvl = {
-                label: level.height + 'p',
+          var hlsLevel = this.hls_.levels[i],
+              level = null;
+
+          if (hlsLevel.height) {
+            level = {
+                label: hlsLevel.height + 'p',
                 index: i,
-                height: level.height
+                bandwidth: hlsLevel.bandwidth,
+                height: hlsLevel.height
             };
           }
-          if (typeof level.attrs.AUDIO !== 'undefined') {
-            lvl = lvl || {};
-            lvl.index =  i;
-            lvl.audio = level.attrs.AUDIO;
+
+          if (typeof hlsLevel.attrs.AUDIO !== 'undefined') {
+            level = level || {};
+            level.index =  i;
+            level.audio = hlsLevel.attrs.AUDIO;
           }
-          if (lvl) {
-            this.levels_.push(lvl);
+
+          if (level) {
+            this.levels_.push(level);
           }
         }
 
