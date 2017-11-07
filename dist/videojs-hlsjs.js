@@ -202,10 +202,9 @@
                 }
                 return acc;
               }, this.hlsTrackId_);
-              if (id !== this.hlsTrackId_) {
+              if (id !== undefined) {
                 tech.hls_.audioTrack = id;
               }
-
             }
           };
 
